@@ -477,6 +477,7 @@ with col_main:
 
             if df_p['Minutos'].mean() < 25: continue
 
+            team_name = df_p['Nome_Time'].iloc[0] if 'Nome_Time' in df_p.columns else "-"
             df_p['PR'] = df_p['Pontos'] + df_p['Rebotes']
             medians = df_p[['Pontos', 'Rebotes', 'Assistencias', 'PR']].median()
             
@@ -497,11 +498,11 @@ with col_main:
             
             if pct_pts >= 50 or pct_reb >= 50 or pct_ast >= 50 or pct_pr >= 50:
                 data_mediana.append({
-                    "JOGADOR": player,
+                    "TIME": team_name, "JOGADOR": player,
                     "MED PTS": int(medians['Pontos']), "% PTS": f"{pct_pts:.0f}%",
                     "MED REB": int(medians['Rebotes']), "% REB": f"{pct_reb:.0f}%",
-                    "MED AST": int(medians['Assistencias']), "% AST": f"{pct_ast:.0f}%",
-                    "MED P+R": int(medians['PR']), "% P+R": f"{pct_pr:.0f}%"
+                    "MED P+R": int(medians['PR']), "% P+R": f"{pct_pr:.0f}%",
+                    "MED AST": int(medians['Assistencias']), "% AST": f"{pct_ast:.0f}%"
                 })
             
             # --- Lógica 2: Consistência (Mínimo vs Mediana) ---
@@ -517,11 +518,11 @@ with col_main:
             conf_pr = calc_conf(mins['PR'], medians['PR'])
 
             data_consistencia.append({
-                "JOGADOR": player,
+                "TIME": team_name, "JOGADOR": player,
                 "MED PTS": int(medians['Pontos']), "MIN PTS": int(mins['Pontos']), "CONF PTS": conf_pts,
                 "MED REB": int(medians['Rebotes']), "MIN REB": int(mins['Rebotes']), "CONF REB": conf_reb,
-                "MED AST": int(medians['Assistencias']), "MIN AST": int(mins['Assistencias']), "CONF AST": conf_ast,
-                "MED P+R": int(medians['PR']), "MIN P+R": int(mins['PR']), "CONF P+R": conf_pr
+                "MED P+R": int(medians['PR']), "MIN P+R": int(mins['PR']), "CONF P+R": conf_pr,
+                "MED AST": int(medians['Assistencias']), "MIN AST": int(mins['Assistencias']), "CONF AST": conf_ast
             })
 
             # --- Lógica 3: Consistência (Teto vs Mediana - Foco em Under) ---
@@ -538,15 +539,22 @@ with col_main:
             conf_teto_pr = calc_conf_teto(medians['PR'], maxs['PR'])
 
             data_teto.append({
-                "JOGADOR": player,
+                "TIME": team_name, "JOGADOR": player,
                 "MED PTS": int(medians['Pontos']), "MAX PTS": int(maxs['Pontos']), "CONF PTS": conf_teto_pts,
                 "MED REB": int(medians['Rebotes']), "MAX REB": int(maxs['Rebotes']), "CONF REB": conf_teto_reb,
-                "MED AST": int(medians['Assistencias']), "MAX AST": int(maxs['Assistencias']), "CONF AST": conf_teto_ast,
-                "MED P+R": int(medians['PR']), "MAX P+R": int(maxs['PR']), "CONF P+R": conf_teto_pr
+                "MED P+R": int(medians['PR']), "MAX P+R": int(maxs['PR']), "CONF P+R": conf_teto_pr,
+                "MED AST": int(medians['Assistencias']), "MAX AST": int(maxs['Assistencias']), "CONF AST": conf_teto_ast
             })
                 
         if data_mediana:
-            st.dataframe(pd.DataFrame(data_mediana).style.apply(highlight_selected_row, axis=1), use_container_width=True, hide_index=True)
+            df_med = pd.DataFrame(data_mediana)
+            cols_order_med = ["TIME", "JOGADOR", 
+                              "MED PTS", "% PTS", 
+                              "MED REB", "% REB", 
+                              "MED P+R", "% P+R",
+                              "MED AST", "% AST"]
+            cols_final_med = [c for c in cols_order_med if c in df_med.columns]
+            st.dataframe(df_med[cols_final_med].style.apply(highlight_selected_row, axis=1), use_container_width=True, hide_index=True)
         else:
             st.info("Nenhum jogador encontrado com os critérios.")
             
@@ -575,11 +583,11 @@ with col_main:
             df_consist = df_consist.sort_values(by="CONF PTS", ascending=False)
 
             # Ordenar colunas para facilitar leitura
-            cols_order = ["JOGADOR", 
+            cols_order = ["TIME", "JOGADOR", 
                           "MED PTS", "MIN PTS", "CONF PTS", 
                           "MED REB", "MIN REB", "CONF REB",
-                          "MED AST", "MIN AST", "CONF AST",
-                          "MED P+R", "MIN P+R", "CONF P+R"]
+                          "MED P+R", "MIN P+R", "CONF P+R",
+                          "MED AST", "MIN AST", "CONF AST"]
             cols_final = [c for c in cols_order if c in df_consist.columns]
             st.dataframe(df_consist[cols_final].style.apply(highlight_selected_row, axis=1), 
                          use_container_width=True, 
@@ -613,11 +621,11 @@ with col_main:
             # Ordenar por padrão pela confiança de pontos (maior % = melhor para under)
             df_teto_display = df_teto_display.sort_values(by="CONF PTS", ascending=False)
 
-            cols_order_teto = ["JOGADOR", 
+            cols_order_teto = ["TIME", "JOGADOR", 
                           "MED PTS", "MAX PTS", "CONF PTS", 
                           "MED REB", "MAX REB", "CONF REB",
-                          "MED AST", "MAX AST", "CONF AST",
-                          "MED P+R", "MAX P+R", "CONF P+R"]
+                          "MED P+R", "MAX P+R", "CONF P+R",
+                          "MED AST", "MAX AST", "CONF AST"]
             cols_final_teto = [c for c in cols_order_teto if c in df_teto_display.columns]
             
             st.dataframe(df_teto_display[cols_final_teto].style.apply(highlight_selected_row, axis=1), 
