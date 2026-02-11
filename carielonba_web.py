@@ -24,6 +24,10 @@ st.markdown("""
             border-radius: 5px;
             background-color: #f8f9fa;
         }
+        /* Reduzir espaçamento no sidebar */
+        [data-testid="stSidebar"] .stElementContainer {
+            margin-bottom: -10px;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -129,8 +133,6 @@ def get_player_photo_path(nome_jogador):
 
 # --- Barra Lateral (Sidebar) para Filtros ---
 with st.sidebar:
-    if os.path.exists("assets/logos/logo.png"):
-        st.image("assets/logos/logo.png", width=70)
     st.title("Filtros de Análise")
 
     # Filtro de Equipe
@@ -140,7 +142,6 @@ with st.sidebar:
         options=["Selecione a Equipe..."] + lista_equipes,
         key="combo_eq"
     )
-
     # Filtro de Jogador (dinâmico)
     if equipe_selecionada != "Selecione a Equipe...":
         df_eq = df_completo[df_completo['Time_Full'] == equipe_selecionada].copy()
@@ -163,8 +164,6 @@ with st.sidebar:
         key="combo_opp"
     )
 
-    st.divider()
-
     # Filtros de Contexto
     st.caption("CONTEXTO DA ANÁLISE")
     st.session_state.filtro_local = st.radio(
@@ -181,19 +180,14 @@ with st.sidebar:
         key="combo_qtd"
     )
 
-    st.divider()
-    if st.button("🔄 Limpar Filtros"):
-        st.session_state.combo_eq = "Selecione a Equipe..."
-        st.session_state.combo_jog = "Selecione o Jogador..."
-        st.session_state.combo_opp = "Selecione..."
-        st.rerun()
-
 # --- Área Principal ---
-st.title("Carielo NBA Scouts 🏀")
+col_main, col_info = st.columns([2.5, 1])
 
-if jogador_selecionado == "Selecione o Jogador...":
-    st.info("Selecione uma equipe e um jogador na barra lateral para iniciar a análise.")
-    st.stop()
+with col_main:
+    st.title("Carielo NBA Scouts 🏀")
+    if jogador_selecionado == "Selecione o Jogador...":
+        st.info("Selecione uma equipe e um jogador na barra lateral para iniciar a análise.")
+        st.stop()
 
 # --- Lógica de Filtragem Principal ---
 df_jogador = df_completo[df_completo['Nome_Full'] == jogador_selecionado].copy()
@@ -218,63 +212,117 @@ elif periodo_selecionado == "Últimos 10":
     df_filtrado = df_filtrado.head(10)
 
 
-# --- Abas de Conteúdo ---
-tab_analise, tab_metricas, tab_tips = st.tabs([
-    "  📊 ANÁLISE INDIVIDUAL  ",
-    "  📈 MÉTRICAS DA EQUIPE (CSV)  ",
-    "  💰 TIPS DO DIA 💰  "
-])
-
-
-with tab_analise:
-    col_perfil, col_tabela, col_confronto = st.columns([1, 2, 1.2])
-
-    # --- Coluna da Esquerda: Perfil e Insights ---
-    with col_perfil:
-        st.subheader("Perfil do Jogador")
+# --- Coluna da Direita: Perfil e Análise de Confronto ---
+with col_info:
+    # 1. Perfil do Jogador
+    st.subheader("Perfil")
+    with st.container(border=True):
+        c1, c2 = st.columns([1, 2])
+        path_foto = get_player_photo_path(jogador_selecionado)
+        if os.path.exists(path_foto):
+            c1.image(path_foto, width=80)
         
-        # Card do Perfil
-        with st.container(border=True):
-            c1, c2 = st.columns([1, 2])
-            path_foto = get_player_photo_path(jogador_selecionado)
-            if os.path.exists(path_foto):
-                c1.image(path_foto, width=100)
+        posicao = df_jogador['Posicao_Jogador'].iloc[0] if 'Posicao_Jogador' in df_jogador.columns and not df_jogador.empty else "N/A"
+        c2.markdown(f"**{jogador_selecionado.upper()}**")
+        c2.caption(f"Posição: {posicao}")
+
+    # 2. Análise de Confronto (MOVEMOS PARA CIMA)
+    st.subheader("Confronto")
+    
+    # H2H
+    with st.container(border=True):
+        st.markdown("**Head-to-Head (H2H)**")
+        if opp_selecionado != "Selecione...":
+            df_h2h = df_jogador[df_jogador['Opp_Full'] == opp_selecionado]
+            if not df_h2h.empty:
+                mean_h2h = df_h2h[['Pontos', 'Rebotes', 'PR']].mean()
+                st.markdown(f"Jogos: **{len(df_h2h)}**")
+                st.markdown(f"PTS: **{mean_h2h['Pontos']:.1f}** | REB: **{mean_h2h['Rebotes']:.1f}**")
+            else:
+                st.warning("Sem histórico")
+        else:
+            st.info("Selecione adversário")
+
+    # Projeção vs Linha
+    with st.container(border=True):
+        st.markdown("**Projeção vs Linha**")
+        if not df_filtrado.empty:
+            # Garante coluna P+R
+            df_filtrado['P+R'] = df_filtrado['Pontos'] + df_filtrado['Rebotes']
             
-            posicao = df_jogador['Posicao_Jogador'].iloc[0] if 'Posicao_Jogador' in df_jogador.columns and not df_jogador.empty else "N/A"
-            c2.markdown(f"**{jogador_selecionado.upper()}**")
-            c2.caption(f"Posição: {posicao}")
-
-        st.subheader("Insights Rápidos")
-        map_func = [("MEDIANA", "median"), ("MÉDIA", "mean"), ("MÍNIMO", "min"), ("MÁXIMO", "max")]
-        cols_nba = {"MIN": "Minutos", "PTS": "Pontos", "REB": "Rebotes", "P+R": "PR", "AST": "Assistencias", "3P": "3PTS_Feitos"}
-
-        for titulo, func in map_func:
-            with st.expander(f"📊 {titulo}", expanded=(titulo == "MEDIANA")):
-                cols = st.columns(len(cols_nba))
-                for i, (label, col_csv) in enumerate(cols_nba.items()):
-                    val = getattr(df_filtrado[col_csv], func)() if not df_filtrado.empty else 0
-                    formatted_val = f"{val:.1f}" if func in ["mean", "median"] else f"{int(val)}"
-                    cols[i].metric(label, formatted_val)
-
-        # Seção da Linha da Bet
-        st.subheader("🎯 Linha da Bet")
-        with st.container(border=True):
-            bet_cols = st.columns(5)
-            bet_inputs = {}
-            bet_labels = ["PTS", "REB", "P+R", "AST", "3P"]
-            bet_keys = ["pts", "reb", "pr", "ast", "3p"]
-
-            # Preencher com dados do linhas.csv
-            linha_jogador_df = df_linhas[df_linhas['jogador'].str.contains(jogador_selecionado, case=False, na=False)]
+            stats_config = [
+                ("PTS", "Pontos", "pts"),
+                ("REB", "Rebotes", "reb"),
+                ("P+R", "P+R", "pr"),
+                ("AST", "Assistencias", "ast")
+            ]
             
-            for i, (label, key) in enumerate(zip(bet_labels, bet_keys)):
-                default_val = ""
-                if not linha_jogador_df.empty and key in linha_jogador_df.columns:
-                    default_val = linha_jogador_df.iloc[0][key]
-                bet_inputs[key] = bet_cols[i].text_input(label, value=default_val, key=f"bet_{key}")
+            proj_data = []
+            for label, col_df, key_bet in stats_config:
+                # 1. Mediana (Insights)
+                mediana = df_filtrado[col_df].median()
+                qtd_over_med = len(df_filtrado[df_filtrado[col_df] > mediana])
+                pct_med = (qtd_over_med / len(df_filtrado)) * 100
+                
+                # 2. Linha da Bet (Input do usuário)
+                linha_val_str = st.session_state.get(f"bet_{key_bet}", "")
+                pct_line_str = "-"
+                if linha_val_str:
+                    try:
+                        linha_val = float(linha_val_str.replace(",", "."))
+                        qtd_over_line = len(df_filtrado[df_filtrado[col_df] > linha_val])
+                        pct_line = (qtd_over_line / len(df_filtrado)) * 100
+                        pct_line_str = f"{pct_line:.0f}%"
+                    except ValueError:
+                        pass
+                
+                proj_data.append({"Stat": label, "% > Med": f"{pct_med:.0f}%", "% > Line": pct_line_str})
+            
+            st.dataframe(pd.DataFrame(proj_data), hide_index=True, use_container_width=True)
+        else:
+            st.write("Sem dados.")
 
-    # --- Coluna Central: Tabela de Jogos ---
-    with col_tabela:
+    # Defensive Gaps
+    st.markdown("**Defensive Gaps**")
+    if opp_selecionado != "Selecione...":
+        df_opp_sofre = df_completo[df_completo['Opp_Full'] == opp_selecionado].copy()
+        if not df_opp_sofre.empty and 'Posicao_Jogador' in df_opp_sofre.columns:
+            stats_pos = df_opp_sofre.groupby('Posicao_Jogador')[['Pontos', 'Rebotes', '3PTS_Feitos']].mean().sort_values(by='Pontos', ascending=False).head(3)
+            stats_pos = stats_pos.reset_index().rename(columns={"Posicao_Jogador": "POS", "Pontos": "PTS", "Rebotes": "REB", "3PTS_Feitos": "3PTS"})
+            st.dataframe(stats_pos, hide_index=True, use_container_width=True)
+    else:
+        st.info("Selecione adversário")
+
+    # 2. Linha da Bet
+    with st.container(border=True):
+        st.markdown("**🎯 Linha da Bet**")
+        bet_cols = st.columns(3) # Ajustado para caber melhor na coluna lateral
+        bet_inputs = {}
+        bet_labels = ["PTS", "REB", "AST", "P+R", "3P"] # Reorganizado para fluir melhor
+        bet_keys = ["pts", "reb", "ast", "pr", "3p"]
+
+        linha_jogador_df = df_linhas[df_linhas['jogador'].str.contains(jogador_selecionado, case=False, na=False)]
+        
+        for i, (label, key) in enumerate(zip(bet_labels, bet_keys)):
+            default_val = ""
+            if not linha_jogador_df.empty and key in linha_jogador_df.columns:
+                default_val = linha_jogador_df.iloc[0][key]
+            # Distribui inputs em linhas
+            if i < 3: col = bet_cols[i]
+            else: col = bet_cols[i-3]
+            
+            bet_inputs[key] = col.text_input(label, value=default_val, key=f"bet_{key}")
+
+# --- Coluna Principal: Abas e Tabelas ---
+with col_main:
+    # --- Abas de Conteúdo ---
+    tab_analise, tab_metricas, tab_tips = st.tabs([
+        "  📊 ANÁLISE INDIVIDUAL  ",
+        "  📈 MÉTRICAS DA EQUIPE (CSV)  ",
+        "  💰 TIPS DO DIA 💰  "
+    ])
+
+    with tab_analise:
         st.subheader("Histórico de Jogos")
         
         df_display = df_filtrado.copy()
@@ -292,57 +340,19 @@ with tab_analise:
             use_container_width=True
         )
 
-    # --- Coluna da Direita: Análise de Confronto ---
-    with col_confronto:
-        st.subheader("Análise de Confronto")
-
-        # H2H e Projeção
-        c1, c2 = st.columns(2)
-        with c1:
-            with st.container(border=True):
-                st.markdown("**Head-to-Head (H2H)**")
-                if opp_selecionado != "Selecione...":
-                    df_h2h = df_jogador[df_jogador['Opp_Full'] == opp_selecionado]
-                    if not df_h2h.empty:
-                        mean_h2h = df_h2h[['Pontos', 'Rebotes', 'PR']].mean()
-                        st.markdown(f"Jogos: **{len(df_h2h)}**")
-                        st.markdown(f"PTS: **{mean_h2h['Pontos']:.1f}** | REB: **{mean_h2h['Rebotes']:.1f}**")
-                    else:
-                        st.warning("Sem histórico")
-                else:
-                    st.info("Selecione um adversário")
-        with c2:
-            with st.container(border=True):
-                st.markdown("**Projeção vs Linha**")
-                # Lógica de projeção e comparação com a linha da bet
-                # (Simplificado para demonstração)
-                if not df_filtrado.empty:
-                    median_geral = df_filtrado[['Pontos', 'Rebotes', 'PR']].median()
-                    try:
-                        linha_pts = float(bet_inputs['pts']) if bet_inputs['pts'] else 0
-                        diff = median_geral['Pontos'] - linha_pts
-                        if diff > 0.5: st.success(f"OVER PTS ({diff:+.1f})")
-                        elif diff < -0.5: st.error(f"UNDER PTS ({diff:+.1f})")
-                        else: st.warning("Linha Justa")
-                    except (ValueError, KeyError):
-                        st.write("...")
-                else:
-                    st.write("...")
-
-        # Defensive Gaps
-        st.markdown("**Defensive Gaps do Adversário**")
-        if opp_selecionado != "Selecione...":
-            df_opp_sofre = df_completo[df_completo['Opp_Full'] == opp_selecionado].copy()
-            if not df_opp_sofre.empty and 'Posicao_Jogador' in df_opp_sofre.columns:
-                stats_pos = df_opp_sofre.groupby('Posicao_Jogador')[['Pontos', 'Rebotes', '3PTS_Feitos']].mean().sort_values(by='Pontos', ascending=False).head(3)
-                stats_pos = stats_pos.reset_index().rename(columns={"Posicao_Jogador": "POS", "Pontos": "PTS", "Rebotes": "REB", "3PTS_Feitos": "3PTS"})
-                st.dataframe(stats_pos, hide_index=True, use_container_width=True)
+        st.divider()
+        st.subheader("Insights Rápidos")
+        if not df_filtrado.empty:
+            cols_nba = {"MIN": "Minutos", "PTS": "Pontos", "REB": "Rebotes", "P+R": "PR", "AST": "Assistencias", "3P": "3PTS_Feitos"}
+            stats = df_filtrado[list(cols_nba.values())].agg(['median', 'mean', 'min', 'max'])
+            stats.columns = list(cols_nba.keys())
+            stats.index = ["Mediana", "Média", "Mínimo", "Máximo"]
+            st.dataframe(stats.style.format("{:.1f}"), use_container_width=True)
         else:
-            st.info("Selecione um adversário para ver os gaps.")
+            st.write("Sem dados para gerar insights.")
 
-
-with tab_metricas:
-    st.header("🎯 Métricas Automáticas (via linhas.csv)")
+    with tab_metricas:
+        st.header("🎯 Métricas Automáticas (via linhas.csv)")
     st.caption(f"Análise baseada no contexto: **{st.session_state.filtro_local}** | Período: **{periodo_selecionado}**")
 
     metric_data = []
