@@ -14,15 +14,47 @@ st.set_page_config(
 # --- Estilos CSS (Opcional, para refinamento) ---
 st.markdown("""
     <style>
+        /* NBA Colors: Blue #17408B, Red #C9082A */
+        /* Dark Theme */
+        .stApp {
+            background-color: #121212;
+            color: #FFFFFF;
+        }
+        h1, h2, h3, h4, h5, h6, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
+            color: #1E90FF !important;
+        }
+        div[data-testid="stButton"] > button {
+            background-color: #C9082A !important;
+            color: white !important;
+            border: none;
+            border-radius: 4px;
+        }
+        div[data-testid="stButton"] > button:hover {
+            background-color: #a00622 !important;
+            color: white !important;
+        }
         .stExpander {
-            border: 1px solid #e0e0e0 !important;
+            border: 1px solid #333 !important;
             border-radius: 5px;
+            background-color: #1E1E1E;
+            color: white;
         }
         .stMetric {
-            border-left: 5px solid #1D428A;
+            background-color: #1E1E1E;
+            border-left: 5px solid #17408B;
             padding-left: 10px;
             border-radius: 5px;
-            background-color: #f8f9fa;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        [data-testid="stMetricLabel"] {
+            color: #B0B0B0 !important;
+        }
+        [data-testid="stMetricValue"] {
+            color: #FFFFFF !important;
+        }
+        [data-testid="stSidebar"] {
+            background-color: #1E1E1E;
+            border-right: 1px solid #333;
         }
         /* Reduzir espaçamento no sidebar */
         [data-testid="stSidebar"] .stElementContainer {
@@ -176,7 +208,7 @@ with st.sidebar:
     periodo_selecionado = st.selectbox(
         "Período dos Jogos",
         options=["Todos", "Últimos 5", "Últimos 10"],
-        index=2, # Padrão "Últimos 10"
+        index=0, # Padrão "Todos"
         key="combo_qtd"
     )
 
@@ -320,6 +352,12 @@ with col_main:
         c2.markdown(f"### {jogador_selecionado.upper()}")
         c2.caption(f"Posição: {posicao}")
 
+    # --- Função de Estilo para Destaque ---
+    def highlight_selected_row(row):
+        if 'JOGADOR' in row.index and row['JOGADOR'] == jogador_selecionado:
+            return ['background-color: #17408B; color: white; font-weight: bold'] * len(row)
+        return [''] * len(row)
+
     # --- Abas de Conteúdo ---
     tab_analise, tab_linhas, tab_mediana, tab_tips = st.tabs([
         "  📊 ANÁLISE INDIVIDUAL  ",
@@ -404,7 +442,7 @@ with col_main:
 
     if metric_data:
         df_metricas_display = pd.DataFrame(metric_data)
-        st.dataframe(df_metricas_display, use_container_width=True, hide_index=True)
+        st.dataframe(df_metricas_display.style.apply(highlight_selected_row, axis=1), use_container_width=True, hide_index=True)
     else:
         st.info("Nenhuma métrica encontrada para os filtros atuais.")
 
@@ -419,6 +457,7 @@ with col_main:
             
         data_mediana = []
         data_consistencia = []
+        data_teto = []
         
         # Contexto global para cálculo de mediana (Temporada)
         df_context_global = df_completo.copy()
@@ -459,10 +498,10 @@ with col_main:
             if pct_pts >= 50 or pct_reb >= 50 or pct_ast >= 50 or pct_pr >= 50:
                 data_mediana.append({
                     "JOGADOR": player,
-                    "MED PTS": medians['Pontos'], "% PTS": f"{pct_pts:.0f}%",
-                    "MED REB": medians['Rebotes'], "% REB": f"{pct_reb:.0f}%",
-                    "MED AST": medians['Assistencias'], "% AST": f"{pct_ast:.0f}%",
-                    "MED P+R": medians['PR'], "% P+R": f"{pct_pr:.0f}%"
+                    "MED PTS": int(medians['Pontos']), "% PTS": f"{pct_pts:.0f}%",
+                    "MED REB": int(medians['Rebotes']), "% REB": f"{pct_reb:.0f}%",
+                    "MED AST": int(medians['Assistencias']), "% AST": f"{pct_ast:.0f}%",
+                    "MED P+R": int(medians['PR']), "% P+R": f"{pct_pr:.0f}%"
                 })
             
             # --- Lógica 2: Consistência (Mínimo vs Mediana) ---
@@ -479,14 +518,35 @@ with col_main:
 
             data_consistencia.append({
                 "JOGADOR": player,
-                "MED PTS": medians['Pontos'], "MIN PTS": mins['Pontos'], "CONF PTS": conf_pts,
-                "MED REB": medians['Rebotes'], "MIN REB": mins['Rebotes'], "CONF REB": conf_reb,
-                "MED AST": medians['Assistencias'], "MIN AST": mins['Assistencias'], "CONF AST": conf_ast,
-                "MED P+R": medians['PR'], "MIN P+R": mins['PR'], "CONF P+R": conf_pr
+                "MED PTS": int(medians['Pontos']), "MIN PTS": int(mins['Pontos']), "CONF PTS": conf_pts,
+                "MED REB": int(medians['Rebotes']), "MIN REB": int(mins['Rebotes']), "CONF REB": conf_reb,
+                "MED AST": int(medians['Assistencias']), "MIN AST": int(mins['Assistencias']), "CONF AST": conf_ast,
+                "MED P+R": int(medians['PR']), "MIN P+R": int(mins['PR']), "CONF P+R": conf_pr
+            })
+
+            # --- Lógica 3: Consistência (Teto vs Mediana - Foco em Under) ---
+            maxs = df_p_period[['Pontos', 'Rebotes', 'Assistencias', 'PR']].max()
+
+            def calc_conf_teto(med_val, max_val):
+                if max_val == 0: return 0.0
+                # Quanto mais próximo de 100%, mais o Maximo está colado na Mediana (Bom para Under)
+                return (med_val / max_val) * 100
+            
+            conf_teto_pts = calc_conf_teto(medians['Pontos'], maxs['Pontos'])
+            conf_teto_reb = calc_conf_teto(medians['Rebotes'], maxs['Rebotes'])
+            conf_teto_ast = calc_conf_teto(medians['Assistencias'], maxs['Assistencias'])
+            conf_teto_pr = calc_conf_teto(medians['PR'], maxs['PR'])
+
+            data_teto.append({
+                "JOGADOR": player,
+                "MED PTS": int(medians['Pontos']), "MAX PTS": int(maxs['Pontos']), "CONF PTS": conf_teto_pts,
+                "MED REB": int(medians['Rebotes']), "MAX REB": int(maxs['Rebotes']), "CONF REB": conf_teto_reb,
+                "MED AST": int(medians['Assistencias']), "MAX AST": int(maxs['Assistencias']), "CONF AST": conf_teto_ast,
+                "MED P+R": int(medians['PR']), "MAX P+R": int(maxs['PR']), "CONF P+R": conf_teto_pr
             })
                 
         if data_mediana:
-            st.dataframe(pd.DataFrame(data_mediana), use_container_width=True, hide_index=True)
+            st.dataframe(pd.DataFrame(data_mediana).style.apply(highlight_selected_row, axis=1), use_container_width=True, hide_index=True)
         else:
             st.info("Nenhum jogador encontrado com os critérios.")
             
@@ -521,7 +581,7 @@ with col_main:
                           "MED AST", "MIN AST", "CONF AST",
                           "MED P+R", "MIN P+R", "CONF P+R"]
             cols_final = [c for c in cols_order if c in df_consist.columns]
-            st.dataframe(df_consist[cols_final], 
+            st.dataframe(df_consist[cols_final].style.apply(highlight_selected_row, axis=1), 
                          use_container_width=True, 
                          hide_index=True,
                          column_config={
@@ -532,6 +592,45 @@ with col_main:
                          })
         else:
             st.write("Sem dados para consistência.")
+
+        # --- Exibição da Seção de Teto (Under) ---
+        st.divider()
+        st.subheader("📉 Consistência (Teto vs Mediana) - Foco em Under")
+        
+        with st.expander("ℹ️ Como usar para Under? (Clique para ver)"):
+            st.markdown("""
+            **Objetivo:** Identificar jogadores com um "teto" baixo ou controlado. Ideal para buscar linhas de **UNDER**.
+            
+            **Fórmula:** $$\\frac{\\text{Mediana da Temporada}}{\\text{Máximo do Período}} \\times 100$$
+            
+            **Interpretação:**
+            *   **Alta % (perto de 100%):** O Máximo que o jogador fez é muito próximo da sua Mediana. Isso sugere que ele raramente "explode" em pontuação. **Bom para Under.**
+            *   **Baixa %:** O jogador tem um teto muito alto (ex: Mediana 20, Máximo 40 -> 50%). Perigoso para Under.
+            """)
+
+        if data_teto:
+            df_teto_display = pd.DataFrame(data_teto)
+            # Ordenar por padrão pela confiança de pontos (maior % = melhor para under)
+            df_teto_display = df_teto_display.sort_values(by="CONF PTS", ascending=False)
+
+            cols_order_teto = ["JOGADOR", 
+                          "MED PTS", "MAX PTS", "CONF PTS", 
+                          "MED REB", "MAX REB", "CONF REB",
+                          "MED AST", "MAX AST", "CONF AST",
+                          "MED P+R", "MAX P+R", "CONF P+R"]
+            cols_final_teto = [c for c in cols_order_teto if c in df_teto_display.columns]
+            
+            st.dataframe(df_teto_display[cols_final_teto].style.apply(highlight_selected_row, axis=1), 
+                         use_container_width=True, 
+                         hide_index=True,
+                         column_config={
+                             "CONF PTS": st.column_config.NumberColumn(format="%d%%"),
+                             "CONF REB": st.column_config.NumberColumn(format="%d%%"),
+                             "CONF AST": st.column_config.NumberColumn(format="%d%%"),
+                             "CONF P+R": st.column_config.NumberColumn(format="%d%%"),
+                         })
+        else:
+            st.write("Sem dados para teto.")
 
 with tab_tips:
     st.header("🔥 Consolidado de Dicas de Apostas")
