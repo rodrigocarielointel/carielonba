@@ -194,10 +194,7 @@ with st.sidebar:
 col_main, col_info = st.columns([2.5, 1])
 
 with col_main:
-    st.title("Carielo NBA Scouts 🏀")
-    if jogador_selecionado == "Selecione o Jogador...":
-        st.info("Selecione uma equipe e um jogador na barra lateral para iniciar a análise.")
-        st.stop()
+    st.markdown("### Carielo NBA Scouts 🏀")
 
 # --- Lógica de Filtragem Principal ---
 df_jogador = df_completo[df_completo['Nome_Full'] == jogador_selecionado].copy()
@@ -332,33 +329,34 @@ with col_main:
     ])
 
     with tab_analise:
-        st.subheader("Histórico de Jogos")
-        
-        df_display = df_filtrado.copy()
-        df_display['LOCAL'] = df_display['Casa'].apply(lambda x: "Casa" if x == 1 else "Fora")
-        
-        colunas_tabela = {
-            "Pontos": "PTS", "Rebotes": "REB", "PR": "P+R",
-            "Assistencias": "AST", "3PTS_Feitos": "3PTS",
-            "Minutos": "MIN", "Data_Limpa": "DATA", "LOCAL": "LOCAL", "Opp_Full": "OPONENTE"
-        }
-        
-        st.dataframe(
-            df_display[list(colunas_tabela.keys())].rename(columns=colunas_tabela),
-            hide_index=True,
-            use_container_width=True
-        )
+        if df_filtrado.empty:
+            st.info("Selecione um jogador na barra lateral para visualizar a análise individual.")
+        else:
+            st.subheader("Histórico de Jogos")
+            
+            df_display = df_filtrado.copy()
+            df_display['LOCAL'] = df_display['Casa'].apply(lambda x: "Casa" if x == 1 else "Fora")
+            
+            colunas_tabela = {
+                "Pontos": "PTS", "Rebotes": "REB", "PR": "P+R",
+                "Assistencias": "AST", "3PTS_Feitos": "3PTS",
+                "Minutos": "MIN", "Data_Limpa": "DATA", "LOCAL": "LOCAL", "Opp_Full": "OPONENTE"
+            }
+            
+            st.dataframe(
+                df_display[list(colunas_tabela.keys())].rename(columns=colunas_tabela),
+                hide_index=True,
+                use_container_width=True
+            )
 
-        st.divider()
-        st.subheader("Insights Rápidos")
-        if not df_filtrado.empty:
+            st.divider()
+            st.subheader("Insights Rápidos")
+            
             cols_nba = {"MIN": "Minutos", "PTS": "Pontos", "REB": "Rebotes", "P+R": "PR", "AST": "Assistencias", "3P": "3PTS_Feitos"}
             stats = df_filtrado[list(cols_nba.values())].agg(['median', 'mean', 'min', 'max'])
             stats.columns = list(cols_nba.keys())
             stats.index = ["Mediana", "Média", "Mínimo", "Máximo"]
             st.dataframe(stats.style.format("{:.1f}"), use_container_width=True)
-        else:
-            st.write("Sem dados para gerar insights.")
 
     with tab_linhas:
         st.header("🎯 Insights de Linhas (via linhas.csv)")
@@ -420,6 +418,7 @@ with col_main:
             players_to_scan = df_completo['Nome_Full'].unique()
             
         data_mediana = []
+        data_consistencia = []
         
         # Contexto global para cálculo de mediana (Temporada)
         df_context_global = df_completo.copy()
@@ -450,6 +449,8 @@ with col_main:
             if df_p_period.empty: continue
             
             total_games = len(df_p_period)
+            
+            # --- Lógica 1: Tendência (% Over Mediana) ---
             pct_pts = (len(df_p_period[df_p_period['Pontos'] > medians['Pontos']]) / total_games) * 100
             pct_reb = (len(df_p_period[df_p_period['Rebotes'] > medians['Rebotes']]) / total_games) * 100
             pct_ast = (len(df_p_period[df_p_period['Assistencias'] > medians['Assistencias']]) / total_games) * 100
@@ -463,11 +464,63 @@ with col_main:
                     "MED AST": medians['Assistencias'], "% AST": f"{pct_ast:.0f}%",
                     "MED P+R": medians['PR'], "% P+R": f"{pct_pr:.0f}%"
                 })
+            
+            # --- Lógica 2: Consistência (Mínimo vs Mediana) ---
+            mins = df_p_period[['Pontos', 'Rebotes', 'Assistencias', 'PR']].min()
+            
+            def calc_conf(min_val, med_val):
+                if med_val == 0: return 0.0
+                return (min_val / med_val) * 100
+
+            conf_pts = calc_conf(mins['Pontos'], medians['Pontos'])
+            conf_reb = calc_conf(mins['Rebotes'], medians['Rebotes'])
+            conf_ast = calc_conf(mins['Assistencias'], medians['Assistencias'])
+            conf_pr = calc_conf(mins['PR'], medians['PR'])
+
+            data_consistencia.append({
+                "JOGADOR": player,
+                "MED PTS": medians['Pontos'], "MIN PTS": mins['Pontos'], "CONF PTS": f"{conf_pts:.0f}%",
+                "MED REB": medians['Rebotes'], "MIN REB": mins['Rebotes'], "CONF REB": f"{conf_reb:.0f}%",
+                "MED AST": medians['Assistencias'], "MIN AST": mins['Assistencias'], "CONF AST": f"{conf_ast:.0f}%",
+                "MED P+R": medians['PR'], "MIN P+R": mins['PR'], "CONF P+R": f"{conf_pr:.0f}%"
+            })
                 
         if data_mediana:
             st.dataframe(pd.DataFrame(data_mediana), use_container_width=True, hide_index=True)
         else:
             st.info("Nenhum jogador encontrado com os critérios.")
+            
+        # --- Exibição da Seção de Consistência ---
+        st.divider()
+        st.subheader("🛡️ Consistência (Piso vs Mediana)")
+        
+        with st.expander("ℹ️ Como funciona este cálculo? (Clique para ver)"):
+            st.markdown("""
+            **Objetivo:** Identificar jogadores com um "piso" alto, ou seja, que mesmo em seus piores jogos recentes, mantiveram uma pontuação próxima à sua mediana habitual.
+            
+            **Fórmula:** $$\\frac{\\text{Mínimo do Período}}{\\text{Mediana da Temporada}} \\times 100$$
+            
+            *   **Mínimo do Período:** O menor valor que o jogador fez nos jogos selecionados (ex: Últimos 10).
+            *   **Mediana da Temporada:** O valor central das estatísticas do jogador na temporada (filtrado por Casa/Fora).
+            
+            **Interpretação:**
+            *   **Alta % (perto de 100%):** O jogador é muito consistente. Seu pior jogo é quase igual à sua média normal.
+            *   **Baixa %:** O jogador tem alta variância. Em dias ruins, pontua muito pouco.
+            """)
+
+        if data_consistencia:
+            df_consist = pd.DataFrame(data_consistencia)
+            # Ordenar colunas para facilitar leitura
+            cols_order = ["JOGADOR", 
+                          "MED PTS", "MIN PTS", "CONF PTS", 
+                          "MED REB", "MIN REB", "CONF REB",
+                          "MED AST", "MIN AST", "CONF AST",
+                          "MED P+R", "MIN P+R", "CONF P+R"]
+            # Garante que só usa colunas que existem (caso mude algo no futuro)
+            cols_final = [c for c in cols_order if c in df_consist.columns]
+            st.dataframe(df_consist[cols_final], use_container_width=True, hide_index=True)
+        else:
+            st.write("Sem dados para consistência.")
 
 with tab_tips:
     st.header("🔥 Consolidado de Dicas de Apostas")
