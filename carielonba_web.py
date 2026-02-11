@@ -479,10 +479,10 @@ with col_main:
 
             data_consistencia.append({
                 "JOGADOR": player,
-                "MED PTS": medians['Pontos'], "MIN PTS": mins['Pontos'], "CONF PTS": f"{conf_pts:.0f}%",
-                "MED REB": medians['Rebotes'], "MIN REB": mins['Rebotes'], "CONF REB": f"{conf_reb:.0f}%",
-                "MED AST": medians['Assistencias'], "MIN AST": mins['Assistencias'], "CONF AST": f"{conf_ast:.0f}%",
-                "MED P+R": medians['PR'], "MIN P+R": mins['PR'], "CONF P+R": f"{conf_pr:.0f}%"
+                "MED PTS": medians['Pontos'], "MIN PTS": mins['Pontos'], "CONF PTS": conf_pts,
+                "MED REB": medians['Rebotes'], "MIN REB": mins['Rebotes'], "CONF REB": conf_reb,
+                "MED AST": medians['Assistencias'], "MIN AST": mins['Assistencias'], "CONF AST": conf_ast,
+                "MED P+R": medians['PR'], "MIN P+R": mins['PR'], "CONF P+R": conf_pr
             })
                 
         if data_mediana:
@@ -510,15 +510,26 @@ with col_main:
 
         if data_consistencia:
             df_consist = pd.DataFrame(data_consistencia)
+            
+            # Ordenar por padrão pela confiança de pontos
+            df_consist = df_consist.sort_values(by="CONF PTS", ascending=False)
+
             # Ordenar colunas para facilitar leitura
             cols_order = ["JOGADOR", 
                           "MED PTS", "MIN PTS", "CONF PTS", 
                           "MED REB", "MIN REB", "CONF REB",
                           "MED AST", "MIN AST", "CONF AST",
                           "MED P+R", "MIN P+R", "CONF P+R"]
-            # Garante que só usa colunas que existem (caso mude algo no futuro)
             cols_final = [c for c in cols_order if c in df_consist.columns]
-            st.dataframe(df_consist[cols_final], use_container_width=True, hide_index=True)
+            st.dataframe(df_consist[cols_final], 
+                         use_container_width=True, 
+                         hide_index=True,
+                         column_config={
+                             "CONF PTS": st.column_config.NumberColumn(format="%d%%"),
+                             "CONF REB": st.column_config.NumberColumn(format="%d%%"),
+                             "CONF AST": st.column_config.NumberColumn(format="%d%%"),
+                             "CONF P+R": st.column_config.NumberColumn(format="%d%%"),
+                         })
         else:
             st.write("Sem dados para consistência.")
 
