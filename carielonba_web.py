@@ -18,19 +18,22 @@ st.markdown("""
         /* Dark Theme */
         .stApp {
             background-color: #121212;
-            color: #FFFFFF;
+            color: #E0E0E0;
         }
+        /* Headers em Azul NBA */
         h1, h2, h3, h4, h5, h6, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
-            color: #1E90FF !important;
+            color: #17408B !important;
         }
+        /* Botões em Vermelho NBA */
         div[data-testid="stButton"] > button {
             background-color: #C9082A !important;
             color: white !important;
             border: none;
             border-radius: 4px;
+            font-weight: bold;
         }
         div[data-testid="stButton"] > button:hover {
-            background-color: #a00622 !important;
+            background-color: #A00520 !important;
             color: white !important;
         }
         .stExpander {
@@ -39,6 +42,7 @@ st.markdown("""
             background-color: #1E1E1E;
             color: white;
         }
+        /* Métricas com borda lateral Azul */
         .stMetric {
             background-color: #1E1E1E;
             border-left: 5px solid #17408B;
@@ -55,6 +59,11 @@ st.markdown("""
         [data-testid="stSidebar"] {
             background-color: #1E1E1E;
             border-right: 1px solid #333;
+        }
+        /* Tabelas */
+        div[data-testid="stDataFrame"] {
+            background-color: #1E1E1E;
+            border-radius: 5px;
         }
         /* Reduzir espaçamento no sidebar */
         [data-testid="stSidebar"] .stElementContainer {
@@ -398,14 +407,28 @@ with col_main:
 
     with tab_linhas:
         st.header("🎯 Insights de Linhas (via linhas.csv)")
-    st.caption(f"Análise baseada no contexto: **{st.session_state.filtro_local}** | Período: **{periodo_selecionado}**")
+        st.caption(f"Análise baseada no contexto: **{st.session_state.filtro_local}** | Período: **{periodo_selecionado}**")
 
     metric_data = []
+    tips_automaticas = []
+
     for _, row_l in df_linhas.iterrows():
         nome_j = str(row_l.get('jogador', '')).strip()
         equipe_j_abrev = str(row_l.get('equipe', '')).strip()
         equipe_j_full = ABREV_PARA_FULL.get(equipe_j_abrev, equipe_j_abrev)
         detalhe = str(row_l.get('detalhe', '')).strip()
+        
+        # Filtro Casa/Fora baseado na coluna 'casa' do linhas.csv
+        # 1 = Casa, 0 = Fora
+        try:
+            is_home_game = int(float(str(row_l.get('casa', -1))))
+        except:
+            is_home_game = -1
+
+        if st.session_state.filtro_local == "Casa" and is_home_game != 1:
+            continue
+        if st.session_state.filtro_local == "Fora" and is_home_game != 0:
+            continue
 
         # Filtro de equipe
         if equipe_selecionada != "Selecione a Equipe..." and equipe_j_full != equipe_selecionada:
@@ -430,21 +453,78 @@ with col_main:
 
             total = len(df_j_metric)
             if total > 0:
-                df_j_metric['PR'] = df_j_metric['Pontos'].fillna(0) + df_j_metric['Rebotes'].fillna(0)
-                p_pts = (len(df_j_metric[df_j_metric['Pontos'] > v_pts]) / total * 100)
-                p_rbt = (len(df_j_metric[df_j_metric['Rebotes'] > v_rbt]) / total * 100)
-                p_pr = (len(df_j_metric[df_j_metric['PR'] > v_pr]) / total * 100) if v_pr > 0 else 0
+                # Garante que as colunas de estatísticas sejam numéricas e sem NaN
+                for col in ['Pontos', 'Rebotes']:
+                    df_j_metric[col] = pd.to_numeric(df_j_metric[col], errors='coerce').fillna(0)
+                df_j_metric['PR'] = df_j_metric['Pontos'] + df_j_metric['Rebotes']
+                
+                # Mins
+                mins = df_j_metric[['Pontos', 'Rebotes', 'PR']].min()
 
+                p_pts = (len(df_j_metric[df_j_metric['Pontos'] > v_pts]) / total * 100) if not pd.isna(v_pts) else 0
+                p_rbt = (len(df_j_metric[df_j_metric['Rebotes'] > v_rbt]) / total * 100) if not pd.isna(v_rbt) else 0
+                p_pr = (len(df_j_metric[df_j_metric['PR'] > v_pr]) / total * 100) if v_pr > 0 and not pd.isna(v_pr) else 0
+
+                # Confidence (Floor vs Line)
+                def calc_conf(min_val, line_val):
+                    if pd.isna(line_val) or line_val == 0: return 0.0
+                    if pd.isna(min_val): return 0.0
+                    return (min_val / line_val) * 100
+
+                conf_pts = calc_conf(mins['Pontos'], v_pts)
+                conf_reb = calc_conf(mins['Rebotes'], v_rbt)
+                conf_pr = calc_conf(mins['PR'], v_pr)
+
+                # Lógica para Tips Automáticas (> 75% Confiança)
+                if conf_pts > 75:
+                    tips_automaticas.append({
+                        "JOGADOR": nome_j, "TIME": equipe_j_full, "MERCADO": "Pontos", 
+                        "LINHA": v_pts, "PISO": int(mins['Pontos']), "CONFIANÇA": conf_pts
+                    })
+                if conf_reb > 75:
+                    tips_automaticas.append({
+                        "JOGADOR": nome_j, "TIME": equipe_j_full, "MERCADO": "Rebotes", 
+                        "LINHA": v_rbt, "PISO": int(mins['Rebotes']), "CONFIANÇA": conf_reb
+                    })
+                if conf_pr > 75:
+                    tips_automaticas.append({
+                        "JOGADOR": nome_j, "TIME": equipe_j_full, "MERCADO": "P+R", 
+                        "LINHA": v_pr, "PISO": int(mins['PR']), "CONFIANÇA": conf_pr
+                    })
+
+                # Garante que os valores que serão convertidos para int não sejam NaN
                 metric_data.append({
-                    "EQUIPE": equipe_j_full, "JOGADOR": nome_j, "L_PTS": v_pts, "L_REB": v_rbt, "L_PR": v_pr,
-                    "PTS %": f"{p_pts:.0f}%", "REB %": f"{p_rbt:.0f}%", "PR %": f"{p_pr:.0f}%", "DETALHE": detalhe
+                    "EQUIPE": equipe_j_full, "JOGADOR": nome_j, 
+                    "L_PTS": int(v_pts) if not pd.isna(v_pts) else 0, "MIN PTS": int(mins['Pontos']), "CONF PTS": conf_pts, "PTS %": f"{p_pts:.0f}%",
+                    "L_REB": int(v_rbt) if not pd.isna(v_rbt) else 0, "MIN REB": int(mins['Rebotes']), "CONF REB": conf_reb, "REB %": f"{p_rbt:.0f}%",
+                    "L_PR": int(v_pr) if not pd.isna(v_pr) else 0, "MIN PR": int(mins['PR']), "CONF PR": conf_pr, "PR %": f"{p_pr:.0f}%",
+                    "DETALHE": detalhe
                 })
 
     if metric_data:
         df_metricas_display = pd.DataFrame(metric_data)
-        st.dataframe(df_metricas_display.style.apply(highlight_selected_row, axis=1), use_container_width=True, hide_index=True)
+        st.dataframe(
+            df_metricas_display.style.apply(highlight_selected_row, axis=1), 
+            use_container_width=True, 
+            hide_index=True,
+            column_config={
+                 "CONF PTS": st.column_config.NumberColumn(format="%d%%"),
+                 "CONF REB": st.column_config.NumberColumn(format="%d%%"),
+                 "CONF PR": st.column_config.NumberColumn(format="%d%%"),
+            }
+        )
     else:
         st.info("Nenhuma métrica encontrada para os filtros atuais.")
+
+    with st.expander("ℹ️ Legenda das Métricas (Clique para ver)"):
+        st.markdown("""
+        *   **L_ (Linha):** Valor da linha oferecida pela casa de apostas.
+        *   **MIN (Piso):** O menor valor registrado pelo jogador no período selecionado (ex: Últimos 10 jogos).
+        *   **CONF (Confiança):** Relação entre o Piso e a Linha ($$\\frac{\\text{Piso}}{\\text{Linha}} \\times 100$$).
+            *   *Acima de 100%:* O jogador bateu a linha em **todos** os jogos do período (Piso > Linha).
+            *   *Próximo de 100%:* O pior jogo do jogador foi muito próximo da linha.
+        *   **% (Hit Rate):** Porcentagem de jogos em que o jogador superou a linha.
+        """)
 
     with tab_mediana:
         st.header("📊 Insights de Mediana (Tendência)")
@@ -558,6 +638,13 @@ with col_main:
         else:
             st.info("Nenhum jogador encontrado com os critérios.")
             
+        with st.expander("ℹ️ Legenda - Tendência"):
+            st.markdown("""
+            *   **MED (Mediana):** O valor central das estatísticas do jogador na temporada. Representa o desempenho "padrão".
+            *   **% (Frequência):** Porcentagem de jogos no período recente onde o jogador superou sua própria mediana da temporada.
+                *   *Indica:* Se o jogador está em uma fase melhor (quente) ou pior (fria) que o seu normal.
+            """)
+
         # --- Exibição da Seção de Consistência ---
         st.divider()
         st.subheader("🛡️ Consistência (Piso vs Mediana)")
@@ -642,16 +729,27 @@ with col_main:
 
 with tab_tips:
     st.header("🔥 Consolidado de Dicas de Apostas")
-    st.info("Esta seção é um exemplo e pode ser desenvolvida para consolidar dicas manuais e automáticas.")
+    st.caption(f"Jogadores com Confiança (Piso vs Linha) > 75% | Filtro: {st.session_state.filtro_local}")
     
-    if 'tips' not in st.session_state:
-        st.session_state.tips = []
-
-    # Exemplo de como adicionar uma dica (a lógica completa pode ser implementada aqui)
-    # if st.button("Adicionar Dica de Exemplo"):
-    #     st.session_state.tips.append({"Jogador": jogador_selecionado, "Mercado": "Pontos OVER", "Linha": 25.5})
-
-    if st.session_state.tips:
-        st.dataframe(pd.DataFrame(st.session_state.tips), use_container_width=True, hide_index=True)
+    if tips_automaticas:
+        df_tips = pd.DataFrame(tips_automaticas)
+        # Ordena por confiança
+        df_tips = df_tips.sort_values(by="CONFIANÇA", ascending=False)
+        
+        st.dataframe(
+            df_tips, 
+            use_container_width=True, 
+            hide_index=True,
+            column_config={
+                "CONFIANÇA": st.column_config.NumberColumn(format="%d%%")
+            }
+        )
     else:
-        st.write("Nenhuma dica adicionada ainda.")
+        st.info("Nenhuma oportunidade de alta confiança (>75%) encontrada com os filtros atuais.")
+
+    with st.expander("ℹ️ Entenda as Tips"):
+        st.markdown("""
+        *   **Seleção:** Apenas jogadores com **Confiança > 75%**.
+        *   **Confiança:** Calculada dividindo o **Piso** (pior jogo recente) pela **Linha** da aposta.
+        *   **Interpretação:** Buscamos jogadores cujo "pior dia" ainda é seguro ou muito próximo da linha pedida, minimizando o risco de red por variância normal.
+        """)
