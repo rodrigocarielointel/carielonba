@@ -11,64 +11,200 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- Estilos CSS (Opcional, para refinamento) ---
-st.markdown("""
+# --- DEFINIÇÃO DE VARIÁVEIS DE CORES (3 TONS CADA) ---
+# Azul (NBA)
+AZUL_NBA_CLARO = "#4169E1"
+AZUL_NBA_MEDIO = "#17408B" # Cor Principal
+AZUL_NBA_ESCURO = "#0C2340"
+
+# Vermelho (NBA)
+VERMELHO_NBA_CLARO = "#FF4C4C"
+VERMELHO_NBA_MEDIO = "#C9082A" # Cor Principal
+VERMELHO_NBA_ESCURO = "#8B0000"
+
+# Branco
+BRANCO_CLARO = "#FFFFFF"
+BRANCO_MEDIO = "#F0F2F6" # Padrão Streamlit (Cinza muito claro)
+BRANCO_ESCURO = "#E0E0E0"
+
+# Preto
+PRETO_CLARO = "#333333"
+PRETO_MEDIO = "#1E1E1E"
+PRETO_ESCURO = "#121212"
+
+# Laranja (Basquete)
+LARANJA_BASQUETE_CLARO = "#FC9C50"
+LARANJA_BASQUETE_MEDIO = "#FA8320"
+LARANJA_BASQUETE_ESCURO = "#C05805"
+
+# --- MAPEAMENTO DE CORES NOS ELEMENTOS (Edite aqui para mudar o tema) ---
+# Fundo e Texto Principal
+VAR_COR_FUNDO_APP = BRANCO_CLARO           # Onde usar: Background geral do app
+VAR_COR_TEXTO_PRINCIPAL = PRETO_CLARO      # Onde usar: Texto padrão do corpo (Legibilidade)
+VAR_COR_TEXTO_SECUNDARIO = AZUL_NBA_MEDIO # Onde usar: Texto secundário
+
+# Cabeçalhos (H1, H2, H3...)
+VAR_COR_TITULOS = AZUL_NBA_MEDIO        # Onde usar: Títulos principais
+
+# Botões
+VAR_COR_BOTAO_FUNDO = AZUL_NBA_MEDIO # Onde usar: Cor de fundo dos botões
+VAR_COR_BOTAO_TEXTO = BRANCO_CLARO    # Onde usar: Cor do texto dentro do botão
+VAR_COR_BOTAO_HOVER = AZUL_NBA_ESCURO # Onde usar: Cor do botão ao passar o mouse
+
+# Barra Lateral (Sidebar)
+VAR_COR_SIDEBAR_FUNDO = AZUL_NBA_MEDIO  # Onde usar: Fundo da barra lateral
+VAR_COR_SIDEBAR_TEXTO = BRANCO_CLARO       # Onde usar: Textos gerais na sidebar
+VAR_COR_SIDEBAR_TITULOS = BRANCO_CLARO # Onde usar: Títulos dentro da sidebar (Contraste no Azul)
+VAR_COR_SIDEBAR_INPUT_BG = BRANCO_CLARO # Onde usar: Fundo dos campos de seleção/texto
+VAR_COR_SIDEBAR_INPUT_TXT = PRETO_CLARO   # Onde usar: Texto dentro dos campos
+
+# Elementos de Interface (Cards, Métricas, Tabelas)
+VAR_COR_CARD_FUNDO = BRANCO_MEDIO          # Onde usar: Fundo de containers e tabelas
+VAR_COR_EXPANDER_BORDA = AZUL_NBA_MEDIO # Onde usar: Borda dos elementos expansíveis
+VAR_COR_EXPANDER_TEXTO = AZUL_NBA_MEDIO # Onde usar: Texto dos elementos expansíveis
+VAR_COR_METRICA_FUNDO = BRANCO_MEDIO       # Onde usar: Fundo do card de métrica
+VAR_COR_METRICA_BORDA = VERMELHO_NBA_MEDIO # Onde usar: Borda lateral de destaque da métrica
+VAR_COR_METRICA_LABEL = AZUL_NBA_MEDIO  # Onde usar: Rótulo (título) da métrica
+VAR_COR_METRICA_VALOR = VERMELHO_NBA_MEDIO  # Onde usar: Valor numérico da métrica
+VAR_COR_ABA_TEXTO = AZUL_NBA_MEDIO      # Onde usar: Texto das abas NÃO selecionadas
+VAR_COR_ABA_SELECIONADA_BG = AZUL_NBA_MEDIO # Onde usar: Cor de FUNDO da aba SELECIONADA
+VAR_COR_ABA_SELECIONADA_TXT = BRANCO_CLARO   # Onde usar: Cor do TEXTO da aba SELECIONADA
+
+# Cores para caixas de informação (st.info)
+VAR_COR_INFO_BG = AZUL_NBA_MEDIO      # Onde usar: Fundo das caixas de informação (st.info)
+VAR_COR_INFO_TXT = BRANCO_CLARO    # Onde usar: Texto dentro das caixas de informação
+
+
+# Destaques Específicos
+VAR_COR_DESTAQUE_LINHA_BG = VERMELHO_NBA_MEDIO # Onde usar: Fundo da linha do jogador selecionado
+VAR_COR_DESTAQUE_LINHA_TXT = BRANCO_CLARO # Onde usar: Texto da linha do jogador selecionado
+
+# Scrollbar
+VAR_COR_SCROLLBAR_THUMB = VERMELHO_NBA_MEDIO # Onde usar: Cor da barra de rolagem
+VAR_COR_SCROLLBAR_HOVER = VERMELHO_NBA_ESCURO # Onde usar: Cor da barra de rolagem ao passar o mouse
+
+# --- Estilos CSS (Injetando as variáveis) ---
+st.markdown(f"""
     <style>
-        /* NBA Colors: Blue #17408B, Red #C9082A */
-        /* Dark Theme */
-        .stApp {
-            background-color: #121212;
-            color: #E0E0E0;
-        }
-        /* Headers em Azul NBA */
-        h1, h2, h3, h4, h5, h6, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
-            color: #17408B !important;
-        }
-        /* Botões em Vermelho NBA */
-        div[data-testid="stButton"] > button {
-            background-color: #C9082A !important;
-            color: white !important;
+        /* NBA Theme Variables Applied */
+        
+        /* Main App Background */
+        .stApp {{
+            background-color: {VAR_COR_FUNDO_APP};
+            color: {VAR_COR_TEXTO_PRINCIPAL};
+        }}
+
+        /* Headers */
+        h1, h2, h3, h4, h5, h6, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {{
+            color: {VAR_COR_TITULOS} !important;
+        }}
+
+        /* Botões */
+        div[data-testid="stButton"] > button {{
+            background-color: {VAR_COR_BOTAO_FUNDO} !important;
+            color: {VAR_COR_BOTAO_TEXTO} !important;
             border: none;
             border-radius: 4px;
             font-weight: bold;
-        }
-        div[data-testid="stButton"] > button:hover {
-            background-color: #A00520 !important;
-            color: white !important;
-        }
-        .stExpander {
-            border: 1px solid #333 !important;
+        }}
+        div[data-testid="stButton"] > button:hover {{
+            background-color: {VAR_COR_BOTAO_HOVER} !important;
+            color: {VAR_COR_BOTAO_TEXTO} !important;
+        }}
+
+        /* Sidebar */
+        [data-testid="stSidebar"] {{
+            background-color: {VAR_COR_SIDEBAR_FUNDO};
+        }}
+        /* Textos na Sidebar */
+        [data-testid="stSidebar"] .stMarkdown p,
+        [data-testid="stSidebar"] .stRadio > label p,
+        [data-testid="stSidebar"] .stSelectbox > label,
+        [data-testid="stSidebar"] .stCaptionContainer,
+        [data-testid="stSidebar"] span {{
+            color: {VAR_COR_SIDEBAR_TEXTO} !important;
+        }}
+        [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {{
+            color: {VAR_COR_SIDEBAR_TITULOS} !important;
+        }}
+        /* Inputs na Sidebar */
+        [data-testid="stSidebar"] div[data-baseweb="select"] > div {{
+            background-color: {VAR_COR_SIDEBAR_INPUT_BG};
+            color: {VAR_COR_SIDEBAR_INPUT_TXT} !important;
+        }}
+        [data-testid="stSidebar"] div[data-baseweb="select"] svg {{
+            color: {VAR_COR_SIDEBAR_INPUT_TXT} !important;
+        }}
+
+        /* Cards, Expanders e Tabelas */
+        .stExpander {{
+            background-color: {VAR_COR_CARD_FUNDO} !important;
+            border: 1px solid {VAR_COR_EXPANDER_BORDA} !important;
             border-radius: 5px;
-            background-color: #1E1E1E;
-            color: white;
-        }
-        /* Métricas com borda lateral Azul */
-        .stMetric {
-            background-color: #1E1E1E;
-            border-left: 5px solid #17408B;
-            padding-left: 10px;
+            color: {VAR_COR_EXPANDER_TEXTO} !important;
+        }}
+        .stMetric, div[data-testid="stDataFrame"] {{
+            background-color: {VAR_COR_METRICA_FUNDO} !important;
             border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-        [data-testid="stMetricLabel"] {
-            color: #B0B0B0 !important;
-        }
-        [data-testid="stMetricValue"] {
-            color: #FFFFFF !important;
-        }
-        [data-testid="stSidebar"] {
-            background-color: #1E1E1E;
-            border-right: 1px solid #333;
-        }
-        /* Tabelas */
-        div[data-testid="stDataFrame"] {
-            background-color: #1E1E1E;
+        }}
+        .stMetric {{
+            border-left: 5px solid {VAR_COR_METRICA_BORDA};
+            padding: 10px;
+        }}
+        /* Cor dos textos dentro das métricas */
+        [data-testid="stMetricLabel"] {{
+            color: {VAR_COR_METRICA_LABEL} !important;
+        }}
+        [data-testid="stMetricValue"] {{
+            color: {VAR_COR_METRICA_VALOR} !important;
+        }}
+
+        /* --- AQUI VOCÊ COLORE AS ABAS --- */
+        /* Texto das abas NÃO selecionadas */
+        [data-testid="stTabs"] button p {{
+            color: {VAR_COR_ABA_TEXTO} !important;
+            font-weight: bold;
+        }}
+        /* Fundo e texto da aba que ESTÁ SELECIONADA */
+        [data-testid="stTabs"] button[aria-selected="true"] {{
+            background-color: {VAR_COR_ABA_SELECIONADA_BG} !important;
+            border-radius: 5px 5px 0 0;
+        }}
+        [data-testid="stTabs"] button[aria-selected="true"] p {{
+            color: {VAR_COR_ABA_SELECIONADA_TXT} !important;
+        }}
+        
+        /* Caixas de Informação (st.info) */
+        div[data-testid="stAlert"] {{
+            background-color: {VAR_COR_INFO_BG} !important;
             border-radius: 5px;
-        }
+            border: 1px solid {VAR_COR_INFO_BG};
+        }}
+        div[data-testid="stAlert"] p, div[data-testid="stAlert"] div, div[data-testid="stAlert"] span {{
+            color: {VAR_COR_INFO_TXT} !important;
+        }}
+        
         /* Reduzir espaçamento no sidebar */
-        [data-testid="stSidebar"] .stElementContainer {
+        [data-testid="stSidebar"] .stElementContainer {{
             margin-bottom: -10px;
-        }
+        }}
+
+        /* --- Custom Scrollbar --- */
+        /* Works on Webkit browsers (Chrome, Safari, Edge) */
+        ::-webkit-scrollbar {{
+            width: 12px;
+        }}
+        ::-webkit-scrollbar-track {{
+            background: {VAR_COR_FUNDO_APP}; 
+        }}
+        ::-webkit-scrollbar-thumb {{
+            background-color: {VAR_COR_SCROLLBAR_THUMB};
+            border-radius: 10px;
+            border: 3px solid {VAR_COR_FUNDO_APP};
+        }}
+        ::-webkit-scrollbar-thumb:hover {{
+            background-color: {VAR_COR_SCROLLBAR_HOVER};
+        }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -318,25 +454,6 @@ with col_info:
         else:
             st.write("Sem dados.")
 
-    # 2. Linha da Bet
-    with st.container(border=True):
-        st.markdown("**🎯 Linha da Bet**")
-        bet_cols = st.columns(5) # Lado a lado
-        bet_inputs = {}
-        bet_labels = ["PTS", "REB", "AST", "P+R", "3P"] # Reorganizado para fluir melhor
-        bet_keys = ["pts", "reb", "ast", "pr", "3p"]
-
-        linha_jogador_df = df_linhas[df_linhas['jogador'].str.contains(jogador_selecionado, case=False, na=False)]
-        
-        for i, (label, key) in enumerate(zip(bet_labels, bet_keys)):
-            default_val = ""
-            if not linha_jogador_df.empty and key in linha_jogador_df.columns:
-                default_val = linha_jogador_df.iloc[0][key]
-            
-            col = bet_cols[i]
-            
-            bet_inputs[key] = col.text_input(label, value=default_val, key=f"bet_{key}")
-
     # Defensive Gaps
     st.markdown("**Defensive Gaps**")
     if opp_selecionado != "Selecione...":
@@ -347,6 +464,26 @@ with col_info:
             st.dataframe(stats_pos, hide_index=True, use_container_width=True)
     else:
         st.info("Selecione adversário")
+
+    # 2. Linha da Bet (Reposicionado)
+    with st.container(border=True):
+        st.markdown("**🎯 Linha da Bet**")
+        bet_cols = st.columns(5) # Lado a lado
+        bet_inputs = {}
+        bet_labels = ["PTS", "REB", "AST", "P+R", "3P"] # Reorganizado para fluir melhor
+        bet_keys = ["pts", "reb", "ast", "pr", "3p"]
+
+        linha_jogador_df = df_linhas[df_linhas['jogador'].astype(str).str.contains(jogador_selecionado, case=False, na=False, regex=False)]
+        
+        for i, (label, key) in enumerate(zip(bet_labels, bet_keys)):
+            default_val = ""
+            if not linha_jogador_df.empty and key in linha_jogador_df.columns:
+                val = linha_jogador_df.iloc[0][key]
+                if pd.notna(val):
+                    default_val = str(val)
+            
+            col = bet_cols[i]
+            bet_inputs[key] = col.text_input(label, value=default_val, key=f"bet_{key}")
 
 # --- Coluna Principal: Abas e Tabelas ---
 with col_main:
@@ -364,7 +501,8 @@ with col_main:
     # --- Função de Estilo para Destaque ---
     def highlight_selected_row(row):
         if 'JOGADOR' in row.index and row['JOGADOR'] == jogador_selecionado:
-            return ['background-color: #17408B; color: white; font-weight: bold'] * len(row)
+            # Usa as variáveis definidas no topo
+            return [f'background-color: {VAR_COR_DESTAQUE_LINHA_BG}; color: {VAR_COR_DESTAQUE_LINHA_TXT}; font-weight: bold'] * len(row)
         return [''] * len(row)
 
     # --- Abas de Conteúdo ---
