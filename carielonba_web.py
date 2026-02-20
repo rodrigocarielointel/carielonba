@@ -3,6 +3,21 @@ import pandas as pd
 import os
 from PIL import Image
 
+st.markdown("""
+<style>
+/* Esconde header superior */
+header {visibility: hidden;}
+
+/* Esconde menu dos três pontinhos */
+#MainMenu {visibility: hidden;}
+
+/* Remove espaço vazio que sobra */
+div.block-container {
+    padding-top: 1rem;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # --- Configuração da Página ---
 st.set_page_config(
     page_title="Carielo NBA Scouts",
