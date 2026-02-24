@@ -1,0 +1,403 @@
+gameId;data;equipe_casa;equipe_fora
+22500811;21/2/26;Phoenix Suns;Orlando Magic
+22500812;21/2/26;New Orleans Pelicans;Philadelphia 76ers
+22500813;21/2/26;Miami Heat;Memphis Grizzlies
+22500814;21/2/26;Chicago Bulls;Detroit Pistons
+22500815;21/2/26;San Antonio Spurs;Sacramento Kings
+22500816;21/2/26;New York Knicks;Houston Rockets
+22500817;22/2/26;Oklahoma City Thunder;Cleveland Cavaliers
+22500818;22/2/26;Atlanta Hawks;Brooklyn Nets
+22500819;22/2/26;Milwaukee Bucks;Toronto Raptors
+22500820;22/2/26;Golden State Warriors;Denver Nuggets
+22500821;22/2/26;Indiana Pacers;Dallas Mavericks
+22500822;22/2/26;Washington Wizards;Charlotte Hornets
+22500823;22/2/26;Los Angeles Lakers;Boston Celtics
+22500824;22/2/26;Minnesota Timberwolves;Philadelphia 76ers
+22500825;22/2/26;Chicago Bulls;New York Knicks
+22500826;22/2/26;Phoenix Suns;Portland Trail Blazers
+22500827;22/2/26;LA Clippers;Orlando Magic
+22500828;23/2/26;Detroit Pistons;San Antonio Spurs
+22500829;23/2/26;Memphis Grizzlies;Sacramento Kings
+22500830;23/2/26;Houston Rockets;Utah Jazz
+22500831;24/2/26;Indiana Pacers;Philadelphia 76ers
+22500832;24/2/26;Atlanta Hawks;Washington Wizards
+22500833;24/2/26;Brooklyn Nets;Dallas Mavericks
+22500834;24/2/26;Toronto Raptors;Oklahoma City Thunder
+22500835;24/2/26;Cleveland Cavaliers;New York Knicks
+22500836;24/2/26;Chicago Bulls;Charlotte Hornets
+22500837;24/2/26;Milwaukee Bucks;Miami Heat
+22500838;24/2/26;New Orleans Pelicans;Golden State Warriors
+22500839;24/2/26;Phoenix Suns;Boston Celtics
+22500841;24/2/26;Portland Trail Blazers;Minnesota Timberwolves
+22500840;24/2/26;Los Angeles Lakers;Orlando Magic
+22500842;25/2/26;Detroit Pistons;Oklahoma City Thunder
+22500843;25/2/26;Toronto Raptors;San Antonio Spurs
+22500844;25/2/26;Memphis Grizzlies;Golden State Warriors
+22500845;25/2/26;Houston Rockets;Sacramento Kings
+22500846;25/2/26;Milwaukee Bucks;Cleveland Cavaliers
+22500847;25/2/26;Denver Nuggets;Boston Celtics
+22500848;26/2/26;Indiana Pacers;Charlotte Hornets
+22500849;26/2/26;Philadelphia 76ers;Miami Heat
+22500850;26/2/26;Atlanta Hawks;Washington Wizards
+22500851;26/2/26;Brooklyn Nets;San Antonio Spurs
+22500852;26/2/26;Orlando Magic;Houston Rockets
+22500853;26/2/26;Chicago Bulls;Portland Trail Blazers
+22500854;26/2/26;Dallas Mavericks;Sacramento Kings
+22500855;26/2/26;Phoenix Suns;Los Angeles Lakers
+22500856;26/2/26;Utah Jazz;New Orleans Pelicans
+22500857;26/2/26;LA Clippers;Minnesota Timberwolves
+22500858;27/2/26;Detroit Pistons;Cleveland Cavaliers
+22500859;27/2/26;Boston Celtics;Brooklyn Nets
+22500860;27/2/26;Milwaukee Bucks;New York Knicks
+22500861;27/2/26;Dallas Mavericks;Memphis Grizzlies
+22500862;27/2/26;Oklahoma City Thunder;Denver Nuggets
+22500863;28/2/26;Charlotte Hornets;Portland Trail Blazers
+22500864;28/2/26;Miami Heat;Houston Rockets
+22500865;28/2/26;Washington Wizards;Toronto Raptors
+22500866;28/2/26;Golden State Warriors;Los Angeles Lakers
+22500867;28/2/26;Utah Jazz;New Orleans Pelicans
+22500868;1/3/26;New York Knicks;San Antonio Spurs
+22500869;1/3/26;Brooklyn Nets;Cleveland Cavaliers
+22500870;1/3/26;Chicago Bulls;Milwaukee Bucks
+22500871;1/3/26;Denver Nuggets;Minnesota Timberwolves
+22500872;1/3/26;Indiana Pacers;Memphis Grizzlies
+22500873;1/3/26;Atlanta Hawks;Portland Trail Blazers
+22500875;1/3/26;Orlando Magic;Detroit Pistons
+22500874;1/3/26;Boston Celtics;Philadelphia 76ers
+22500876;1/3/26;Dallas Mavericks;Oklahoma City Thunder
+22500877;1/3/26;LA Clippers;New Orleans Pelicans
+22500878;1/3/26;Los Angeles Lakers;Sacramento Kings
+22500879;2/3/26;Washington Wizards;Houston Rockets
+22500880;2/3/26;Milwaukee Bucks;Boston Celtics
+22500881;2/3/26;Utah Jazz;Denver Nuggets
+22500882;2/3/26;Golden State Warriors;LA Clippers
+22500883;3/3/26;Charlotte Hornets;Dallas Mavericks
+22500884;3/3/26;Cleveland Cavaliers;Detroit Pistons
+22500885;3/3/26;Orlando Magic;Washington Wizards
+22500886;3/3/26;Miami Heat;Brooklyn Nets
+22500887;3/3/26;Toronto Raptors;New York Knicks
+22500888;3/3/26;Philadelphia 76ers;San Antonio Spurs
+22500889;3/3/26;Chicago Bulls;Oklahoma City Thunder
+22500890;3/3/26;Minnesota Timberwolves;Memphis Grizzlies
+22500891;3/3/26;Los Angeles Lakers;New Orleans Pelicans
+22500892;3/3/26;Sacramento Kings;Phoenix Suns
+22500893;4/3/26;New York Knicks;Oklahoma City Thunder
+22500894;4/3/26;Boston Celtics;Charlotte Hornets
+22500895;4/3/26;Philadelphia 76ers;Utah Jazz
+22500896;4/3/26;Memphis Grizzlies;Portland Trail Blazers
+22500897;4/3/26;Milwaukee Bucks;Atlanta Hawks
+22500898;4/3/26;LA Clippers;Indiana Pacers
+22500899;5/3/26;Orlando Magic;Dallas Mavericks
+22500900;5/3/26;Washington Wizards;Utah Jazz
+22500901;5/3/26;Miami Heat;Brooklyn Nets
+22500902;5/3/26;Houston Rockets;Golden State Warriors
+22500903;5/3/26;Minnesota Timberwolves;Toronto Raptors
+22500904;5/3/26;San Antonio Spurs;Detroit Pistons
+22500905;5/3/26;Phoenix Suns;Chicago Bulls
+22500906;5/3/26;Denver Nuggets;Los Angeles Lakers
+22500907;5/3/26;Sacramento Kings;New Orleans Pelicans
+22500908;6/3/26;Boston Celtics;Dallas Mavericks
+22500909;6/3/26;Charlotte Hornets;Miami Heat
+22500910;6/3/26;Houston Rockets;Portland Trail Blazers
+22500911;6/3/26;Denver Nuggets;New York Knicks
+22500912;6/3/26;Phoenix Suns;New Orleans Pelicans
+22500913;6/3/26;San Antonio Spurs;LA Clippers
+22500914;6/3/26;Los Angeles Lakers;Indiana Pacers
+22500915;7/3/26;Minnesota Timberwolves;Orlando Magic
+22500916;7/3/26;Detroit Pistons;Brooklyn Nets
+22500917;7/3/26;Atlanta Hawks;Philadelphia 76ers
+22500918;7/3/26;Memphis Grizzlies;LA Clippers
+22500919;7/3/26;Milwaukee Bucks;Utah Jazz
+22500920;7/3/26;Oklahoma City Thunder;Golden State Warriors
+22500921;8/3/26;Cleveland Cavaliers;Boston Celtics
+22500922;8/3/26;Los Angeles Lakers;New York Knicks
+22500923;8/3/26;Miami Heat;Detroit Pistons
+22500924;8/3/26;Toronto Raptors;Dallas Mavericks
+22500925;8/3/26;New Orleans Pelicans;Washington Wizards
+22500926;8/3/26;Milwaukee Bucks;Orlando Magic
+22500927;8/3/26;San Antonio Spurs;Houston Rockets
+22500929;8/3/26;Portland Trail Blazers;Indiana Pacers
+22500930;8/3/26;Sacramento Kings;Chicago Bulls
+22500928;8/3/26;Phoenix Suns;Charlotte Hornets
+22500931;9/3/26;Cleveland Cavaliers;Philadelphia 76ers
+22500932;9/3/26;Brooklyn Nets;Memphis Grizzlies
+22500933;9/3/26;Oklahoma City Thunder;Denver Nuggets
+22500934;9/3/26;Utah Jazz;Golden State Warriors
+22500935;9/3/26;LA Clippers;New York Knicks
+22500936;10/3/26;Philadelphia 76ers;Memphis Grizzlies
+22500937;10/3/26;Brooklyn Nets;Detroit Pistons
+22500938;10/3/26;Miami Heat;Washington Wizards
+22500939;10/3/26;Atlanta Hawks;Dallas Mavericks
+22500940;10/3/26;Houston Rockets;Toronto Raptors
+22500941;10/3/26;Milwaukee Bucks;Phoenix Suns
+22500942;10/3/26;San Antonio Spurs;Boston Celtics
+22500943;10/3/26;Golden State Warriors;Chicago Bulls
+22500944;10/3/26;Portland Trail Blazers;Charlotte Hornets
+22500945;10/3/26;Sacramento Kings;Indiana Pacers
+22500946;10/3/26;Los Angeles Lakers;Minnesota Timberwolves
+22500947;11/3/26;Orlando Magic;Cleveland Cavaliers
+22500948;11/3/26;New Orleans Pelicans;Toronto Raptors
+22500949;11/3/26;Utah Jazz;New York Knicks
+22500950;11/3/26;Denver Nuggets;Houston Rockets
+22500951;11/3/26;Sacramento Kings;Charlotte Hornets
+22500952;11/3/26;LA Clippers;Minnesota Timberwolves
+22500953;12/3/26;Detroit Pistons;Philadelphia 76ers
+22500954;12/3/26;Indiana Pacers;Phoenix Suns
+22500955;12/3/26;Orlando Magic;Washington Wizards
+22500956;12/3/26;Atlanta Hawks;Brooklyn Nets
+22500957;12/3/26;Miami Heat;Milwaukee Bucks
+22501111;12/3/26;Memphis Grizzlies;Dallas Mavericks
+22500958;12/3/26;San Antonio Spurs;Denver Nuggets
+22500959;12/3/26;Oklahoma City Thunder;Boston Celtics
+22500960;12/3/26;Los Angeles Lakers;Chicago Bulls
+22500961;13/3/26;Detroit Pistons;Memphis Grizzlies
+22500962;13/3/26;Indiana Pacers;New York Knicks
+22500963;13/3/26;Toronto Raptors;Phoenix Suns
+22500965;13/3/26;Dallas Mavericks;Cleveland Cavaliers
+22500964;13/3/26;Houston Rockets;New Orleans Pelicans
+22500966;13/3/26;Golden State Warriors;Minnesota Timberwolves
+22500967;13/3/26;Portland Trail Blazers;Utah Jazz
+22500968;13/3/26;LA Clippers;Chicago Bulls
+22500969;14/3/26;Philadelphia 76ers;Brooklyn Nets
+22500970;14/3/26;Atlanta Hawks;Milwaukee Bucks
+22500973;14/3/26;San Antonio Spurs;Charlotte Hornets
+22500971;14/3/26;Boston Celtics;Washington Wizards
+22500972;14/3/26;Miami Heat;Orlando Magic
+22500974;14/3/26;Los Angeles Lakers;Denver Nuggets
+22500975;14/3/26;LA Clippers;Sacramento Kings
+22500976;15/3/26;Oklahoma City Thunder;Minnesota Timberwolves
+22500977;15/3/26;Cleveland Cavaliers;Dallas Mavericks
+22500978;15/3/26;Toronto Raptors;Detroit Pistons
+22500979;15/3/26;Milwaukee Bucks;Indiana Pacers
+22500980;15/3/26;Philadelphia 76ers;Portland Trail Blazers
+22500981;15/3/26;New York Knicks;Golden State Warriors
+22500982;15/3/26;Sacramento Kings;Utah Jazz
+22500983;16/3/26;Atlanta Hawks;Orlando Magic
+22500984;16/3/26;Washington Wizards;Golden State Warriors
+22500985;16/3/26;Brooklyn Nets;Portland Trail Blazers
+22500986;16/3/26;Boston Celtics;Phoenix Suns
+22500987;16/3/26;Chicago Bulls;Memphis Grizzlies
+22500988;16/3/26;New Orleans Pelicans;Dallas Mavericks
+22500989;16/3/26;Houston Rockets;Los Angeles Lakers
+22500990;16/3/26;LA Clippers;San Antonio Spurs
+22500991;17/3/26;Charlotte Hornets;Miami Heat
+22500992;17/3/26;Orlando Magic;Oklahoma City Thunder
+22500993;17/3/26;Washington Wizards;Detroit Pistons
+22500994;17/3/26;New York Knicks;Indiana Pacers
+22500995;17/3/26;Milwaukee Bucks;Cleveland Cavaliers
+22500996;17/3/26;Minnesota Timberwolves;Phoenix Suns
+22500997;17/3/26;Denver Nuggets;Philadelphia 76ers
+22500998;17/3/26;Sacramento Kings;San Antonio Spurs
+22500999;18/3/26;Boston Celtics;Golden State Warriors
+22501000;18/3/26;Brooklyn Nets;Oklahoma City Thunder
+22501001;18/3/26;Indiana Pacers;Portland Trail Blazers
+22500651;18/3/26;Memphis Grizzlies;Denver Nuggets
+22501002;18/3/26;Chicago Bulls;Toronto Raptors
+22501004;18/3/26;Minnesota Timberwolves;Utah Jazz
+22501005;18/3/26;New Orleans Pelicans;LA Clippers
+22501006;18/3/26;Dallas Mavericks;Atlanta Hawks
+22501007;18/3/26;Houston Rockets;Los Angeles Lakers
+22501008;19/3/26;Charlotte Hornets;Orlando Magic
+22501009;19/3/26;Washington Wizards;Detroit Pistons
+22501010;19/3/26;Miami Heat;Los Angeles Lakers
+22501011;19/3/26;Chicago Bulls;Cleveland Cavaliers
+22501012;19/3/26;New Orleans Pelicans;LA Clippers
+22501013;19/3/26;San Antonio Spurs;Phoenix Suns
+22501014;19/3/26;Utah Jazz;Milwaukee Bucks
+22501015;19/3/26;Sacramento Kings;Philadelphia 76ers
+22501016;20/3/26;Brooklyn Nets;New York Knicks
+22501017;20/3/26;Detroit Pistons;Golden State Warriors
+22501018;20/3/26;Houston Rockets;Atlanta Hawks
+22501019;20/3/26;Memphis Grizzlies;Boston Celtics
+22501020;20/3/26;Minnesota Timberwolves;Portland Trail Blazers
+22501021;20/3/26;Denver Nuggets;Toronto Raptors
+22501022;21/3/26;Washington Wizards;Oklahoma City Thunder
+22501023;21/3/26;Charlotte Hornets;Memphis Grizzlies
+22501024;21/3/26;Orlando Magic;Los Angeles Lakers
+22501025;21/3/26;New Orleans Pelicans;Cleveland Cavaliers
+22501026;21/3/26;Atlanta Hawks;Golden State Warriors
+22501027;21/3/26;Houston Rockets;Miami Heat
+22501028;21/3/26;San Antonio Spurs;Indiana Pacers
+22501029;21/3/26;Dallas Mavericks;LA Clippers
+22501030;21/3/26;Utah Jazz;Philadelphia 76ers
+22501031;21/3/26;Phoenix Suns;Milwaukee Bucks
+22501032;22/3/26;Denver Nuggets;Portland Trail Blazers
+22501033;22/3/26;Sacramento Kings;Brooklyn Nets
+22501034;22/3/26;New York Knicks;Washington Wizards
+22501035;22/3/26;Boston Celtics;Minnesota Timberwolves
+22501036;22/3/26;Phoenix Suns;Toronto Raptors
+22501038;23/3/26;Detroit Pistons;Los Angeles Lakers
+22501039;23/3/26;Orlando Magic;Indiana Pacers
+22501040;23/3/26;Philadelphia 76ers;Oklahoma City Thunder
+22501041;23/3/26;Miami Heat;San Antonio Spurs
+22501037;23/3/26;Atlanta Hawks;Memphis Grizzlies
+22501042;23/3/26;Chicago Bulls;Houston Rockets
+22501043;23/3/26;Utah Jazz;Toronto Raptors
+22501044;23/3/26;Dallas Mavericks;Golden State Warriors
+22501045;23/3/26;Portland Trail Blazers;Brooklyn Nets
+22501046;23/3/26;LA Clippers;Milwaukee Bucks
+22501047;24/3/26;Charlotte Hornets;Sacramento Kings
+22501048;24/3/26;New York Knicks;New Orleans Pelicans
+22501049;24/3/26;Cleveland Cavaliers;Orlando Magic
+22501050;24/3/26;Phoenix Suns;Denver Nuggets
+22501051;25/3/26;Detroit Pistons;Atlanta Hawks
+22501052;25/3/26;Indiana Pacers;Los Angeles Lakers
+22501053;25/3/26;Philadelphia 76ers;Chicago Bulls
+22501054;25/3/26;Boston Celtics;Oklahoma City Thunder
+22501055;25/3/26;Cleveland Cavaliers;Miami Heat
+22501056;25/3/26;Memphis Grizzlies;San Antonio Spurs
+22501057;25/3/26;Utah Jazz;Washington Wizards
+22501058;25/3/26;Minnesota Timberwolves;Houston Rockets
+22501059;25/3/26;Denver Nuggets;Dallas Mavericks
+22501060;25/3/26;Golden State Warriors;Brooklyn Nets
+22501061;25/3/26;Portland Trail Blazers;Milwaukee Bucks
+22501062;25/3/26;LA Clippers;Toronto Raptors
+22501063;26/3/26;Charlotte Hornets;New York Knicks
+22501064;26/3/26;Detroit Pistons;New Orleans Pelicans
+22501065;26/3/26;Orlando Magic;Sacramento Kings
+22501066;27/3/26;Indiana Pacers;LA Clippers
+22501067;27/3/26;Boston Celtics;Atlanta Hawks
+22501068;27/3/26;Cleveland Cavaliers;Miami Heat
+22501069;27/3/26;Memphis Grizzlies;Houston Rockets
+22501070;27/3/26;Oklahoma City Thunder;Chicago Bulls
+22501071;27/3/26;Toronto Raptors;New Orleans Pelicans
+22501072;27/3/26;Denver Nuggets;Utah Jazz
+22501073;27/3/26;Golden State Warriors;Washington Wizards
+22501074;27/3/26;Portland Trail Blazers;Dallas Mavericks
+22501075;27/3/26;Los Angeles Lakers;Brooklyn Nets
+22501076;28/3/26;Milwaukee Bucks;San Antonio Spurs
+22501077;28/3/26;Charlotte Hornets;Philadelphia 76ers
+22501078;28/3/26;Atlanta Hawks;Sacramento Kings
+22501079;28/3/26;Memphis Grizzlies;Chicago Bulls
+22501080;28/3/26;Minnesota Timberwolves;Detroit Pistons
+22501081;28/3/26;Phoenix Suns;Utah Jazz
+22501082;29/3/26;Milwaukee Bucks;LA Clippers
+22501083;29/3/26;Indiana Pacers;Miami Heat
+22501084;29/3/26;Brooklyn Nets;Sacramento Kings
+22501085;29/3/26;Charlotte Hornets;Boston Celtics
+22501086;29/3/26;Toronto Raptors;Orlando Magic
+22501087;29/3/26;Portland Trail Blazers;Washington Wizards
+22501088;29/3/26;New Orleans Pelicans;Houston Rockets
+22501089;29/3/26;Oklahoma City Thunder;New York Knicks
+22501090;29/3/26;Denver Nuggets;Golden State Warriors
+22501091;30/3/26;Miami Heat;Philadelphia 76ers
+22501092;30/3/26;Atlanta Hawks;Boston Celtics
+22501093;30/3/26;Memphis Grizzlies;Phoenix Suns
+22501094;30/3/26;San Antonio Spurs;Chicago Bulls
+22501095;30/3/26;Dallas Mavericks;Minnesota Timberwolves
+22501096;30/3/26;Utah Jazz;Cleveland Cavaliers
+22501097;30/3/26;Oklahoma City Thunder;Detroit Pistons
+22501098;30/3/26;Los Angeles Lakers;Washington Wizards
+22501099;31/3/26;Orlando Magic;Phoenix Suns
+22501100;31/3/26;Brooklyn Nets;Charlotte Hornets
+22500652;31/3/26;Milwaukee Bucks;Dallas Mavericks
+22501101;31/3/26;Detroit Pistons;Toronto Raptors
+22501102;31/3/26;Houston Rockets;New York Knicks
+22501103;31/3/26;Los Angeles Lakers;Cleveland Cavaliers
+22501104;31/3/26;LA Clippers;Portland Trail Blazers
+22501105;1/4/26;Washington Wizards;Philadelphia 76ers
+22501106;1/4/26;Miami Heat;Boston Celtics
+22501107;1/4/26;Orlando Magic;Atlanta Hawks
+22501003;1/4/26;Memphis Grizzlies;New York Knicks
+22501108;1/4/26;Toronto Raptors;Sacramento Kings
+22501109;1/4/26;Chicago Bulls;Indiana Pacers
+22501110;1/4/26;Houston Rockets;Milwaukee Bucks
+22501112;1/4/26;Utah Jazz;Denver Nuggets
+22501113;1/4/26;Golden State Warriors;San Antonio Spurs
+22501114;2/4/26;Charlotte Hornets;Phoenix Suns
+22501115;2/4/26;Detroit Pistons;Minnesota Timberwolves
+22501116;2/4/26;Oklahoma City Thunder;Los Angeles Lakers
+22501117;2/4/26;Golden State Warriors;Cleveland Cavaliers
+22501118;2/4/26;Portland Trail Blazers;New Orleans Pelicans
+22501119;2/4/26;LA Clippers;San Antonio Spurs
+22501120;3/4/26;Charlotte Hornets;Indiana Pacers
+22501121;3/4/26;Philadelphia 76ers;Minnesota Timberwolves
+22501122;3/4/26;Brooklyn Nets;Atlanta Hawks
+22501123;3/4/26;New York Knicks;Chicago Bulls
+22501124;3/4/26;Houston Rockets;Utah Jazz
+22501125;3/4/26;Memphis Grizzlies;Toronto Raptors
+22501126;3/4/26;Milwaukee Bucks;Boston Celtics
+22501127;3/4/26;Dallas Mavericks;Orlando Magic
+22501128;3/4/26;Sacramento Kings;New Orleans Pelicans
+22501129;4/4/26;Miami Heat;Washington Wizards
+22501130;4/4/26;Denver Nuggets;San Antonio Spurs
+22501131;4/4/26;Philadelphia 76ers;Detroit Pistons
+22501132;5/4/26;Boston Celtics;Toronto Raptors
+22501133;5/4/26;Brooklyn Nets;Washington Wizards
+22501134;5/4/26;Chicago Bulls;Phoenix Suns
+22501135;5/4/26;Milwaukee Bucks;Memphis Grizzlies
+22501136;5/4/26;Cleveland Cavaliers;Indiana Pacers
+22501137;5/4/26;Minnesota Timberwolves;Charlotte Hornets
+22501138;5/4/26;New Orleans Pelicans;Orlando Magic
+22501139;5/4/26;Oklahoma City Thunder;Utah Jazz
+22501140;5/4/26;Dallas Mavericks;Los Angeles Lakers
+22501141;5/4/26;Sacramento Kings;LA Clippers
+22501142;5/4/26;Golden State Warriors;Houston Rockets
+22501143;6/4/26;Atlanta Hawks;New York Knicks
+22501144;6/4/26;Orlando Magic;Detroit Pistons
+22501145;6/4/26;Memphis Grizzlies;Cleveland Cavaliers
+22501146;6/4/26;San Antonio Spurs;Philadelphia 76ers
+22501147;6/4/26;Denver Nuggets;Portland Trail Blazers
+22501148;7/4/26;Washington Wizards;Chicago Bulls
+22501149;7/4/26;Boston Celtics;Charlotte Hornets
+22501150;7/4/26;Brooklyn Nets;Milwaukee Bucks
+22501151;7/4/26;Toronto Raptors;Miami Heat
+22501152;7/4/26;Indiana Pacers;Minnesota Timberwolves
+22501153;7/4/26;New Orleans Pelicans;Utah Jazz
+22501154;7/4/26;Golden State Warriors;Sacramento Kings
+22501155;7/4/26;Los Angeles Lakers;Oklahoma City Thunder
+22501156;7/4/26;LA Clippers;Dallas Mavericks
+22501157;7/4/26;Phoenix Suns;Houston Rockets
+22501158;8/4/26;Cleveland Cavaliers;Atlanta Hawks
+22501159;8/4/26;Orlando Magic;Minnesota Timberwolves
+22501160;8/4/26;Detroit Pistons;Milwaukee Bucks
+22501162;8/4/26;Denver Nuggets;Memphis Grizzlies
+22501161;8/4/26;San Antonio Spurs;Portland Trail Blazers
+22501163;8/4/26;LA Clippers;Oklahoma City Thunder
+22501164;8/4/26;Phoenix Suns;Dallas Mavericks
+22501165;9/4/26;Toronto Raptors;Miami Heat
+22501166;9/4/26;Washington Wizards;Chicago Bulls
+22501167;9/4/26;Brooklyn Nets;Indiana Pacers
+22501168;9/4/26;New York Knicks;Boston Celtics
+22501169;9/4/26;Houston Rockets;Philadelphia 76ers
+22501170;9/4/26;Golden State Warriors;Los Angeles Lakers
+22501171;10/4/26;Charlotte Hornets;Detroit Pistons
+22501172;10/4/26;Washington Wizards;Miami Heat
+22501173;10/4/26;Atlanta Hawks;Cleveland Cavaliers
+22501174;10/4/26;Boston Celtics;New Orleans Pelicans
+22501175;10/4/26;Indiana Pacers;Philadelphia 76ers
+22501176;10/4/26;New York Knicks;Toronto Raptors
+22501177;10/4/26;Chicago Bulls;Orlando Magic
+22501179;10/4/26;Milwaukee Bucks;Brooklyn Nets
+22501180;10/4/26;San Antonio Spurs;Dallas Mavericks
+22501182;10/4/26;Denver Nuggets;Oklahoma City Thunder
+22501178;10/4/26;Houston Rockets;Minnesota Timberwolves
+22501181;10/4/26;Utah Jazz;Memphis Grizzlies
+22501183;10/4/26;Portland Trail Blazers;LA Clippers
+22501184;10/4/26;Sacramento Kings;Golden State Warriors
+22501185;10/4/26;Los Angeles Lakers;Phoenix Suns
+22501186;12/4/26;Boston Celtics;Orlando Magic
+22501187;12/4/26;Cleveland Cavaliers;Washington Wizards
+22501188;12/4/26;Indiana Pacers;Detroit Pistons
+22501189;12/4/26;Miami Heat;Atlanta Hawks
+22501190;12/4/26;New York Knicks;Charlotte Hornets
+22501191;12/4/26;Philadelphia 76ers;Milwaukee Bucks
+22501192;12/4/26;Toronto Raptors;Brooklyn Nets
+22501193;12/4/26;Dallas Mavericks;Chicago Bulls
+22501194;12/4/26;Houston Rockets;Memphis Grizzlies
+22501195;12/4/26;Minnesota Timberwolves;New Orleans Pelicans
+22501196;12/4/26;Oklahoma City Thunder;Phoenix Suns
+22501197;12/4/26;San Antonio Spurs;Denver Nuggets
+22501198;12/4/26;Los Angeles Lakers;Utah Jazz
+22501199;12/4/26;LA Clippers;Golden State Warriors
+22501200;12/4/26;Portland Trail Blazers;Sacramento Kings
+52500101;14/4/26; ; 
+52500121;14/4/26; ; 
+52500111;15/4/26; ; 
+52500131;15/4/26; ; 
+52500201;17/4/26; ; 
+52500211;17/4/26; ; 
+42500401;3/6/26; ; 
+42500402;5/6/26; ; 
+42500403;8/6/26; ; 
+42500404;10/6/26; ; 
