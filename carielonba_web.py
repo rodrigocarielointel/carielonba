@@ -754,10 +754,6 @@ else:
                 stats.index = ["Mediana", "Média", "Mínimo", "Máximo"]
                 st.dataframe(stats.style.format("{:.1f}"), use_container_width=True)
 
-        with tab_linhas:
-            st.header("🎯 Insights de Linhas (via linhas.csv)")
-            st.caption(f"Análise baseada no contexto: **{st.session_state.filtro_local}** | Período: **{periodo_selecionado}**")
-
         metric_data = []
         tips_automaticas = []
 
@@ -868,18 +864,28 @@ else:
                      "CONF PR": st.column_config.NumberColumn(format="%d%%"),
                 }
             )
+            st.markdown("""
+                <small>
+                **Legenda:**<br>
+                • **JOGADOR/TIME/MERCADO:** Dados da aposta.<br>
+                • **LINHA:** Valor da aposta na casa.<br>
+                • **PISO:** Menor valor marcado pelo jogador no período selecionado.<br>
+                • **CONFIANÇA:** (Piso / Linha) * 100. Indica segurança baseada no pior jogo recente.<br>
+                • **MÉDIA:** Quantidade de partidas no período em que ele atingiu o valor da linha.
+                </small>
+                """, unsafe_allow_html=True)
         else:
             st.info("Nenhuma métrica encontrada para os filtros atuais.")
 
-        with st.expander("ℹ️ Legenda das Métricas (Clique para ver)"):
-            st.markdown("""
-            *   **L_ (Linha):** Valor da linha oferecida pela casa de apostas.
-            *   **MIN (Piso):** O menor valor registrado pelo jogador no período selecionado (ex: Últimos 10 jogos).
-            *   **CONF (Confiança):** Relação entre o Piso e a Linha ($$\\frac{\\text{Piso}}{\\text{Linha}} \\times 100$$).
-                *   *Acima de 100%:* O jogador bateu a linha em **todos** os jogos do período (Piso > Linha).
-                *   *Próximo de 100%:* O pior jogo do jogador foi muito próximo da linha.
-            *   **% (Hit Rate):** Porcentagem de jogos em que o jogador superou a linha.
-            """)
+            with st.expander("ℹ️ Legenda das Métricas (Clique para ver)"):
+                st.markdown("""
+                *   **L_ (Linha):** Valor da linha oferecida pela casa de apostas.
+                *   **MIN (Piso):** O menor valor registrado pelo jogador no período selecionado (ex: Últimos 10 jogos).
+                *   **CONF (Confiança):** Relação entre o Piso e a Linha ($$\\frac{\\text{Piso}}{\\text{Linha}} \\times 100$$).
+                    *   *Acima de 100%:* O jogador bateu a linha em **todos** os jogos do período (Piso > Linha).
+                    *   *Próximo de 100%:* O pior jogo do jogador foi muito próximo da linha.
+                *   **% (Hit Rate):** Porcentagem de jogos em que o jogador superou a linha.
+                """)
 
         with tab_mediana:
             st.header("📊 Insights de Mediana (Tendência)")
@@ -1082,8 +1088,8 @@ else:
             else:
                 st.write("Sem dados para teto.")
 
-    with tab_tips:
-        st.header("🔥 Consolidado de Dicas de Apostas")
+        with tab_tips:
+         st.header("🔥 Consolidado de Dicas de Apostas")
         st.caption(f"Jogadores com Confiança (Piso vs Linha) > 75% | Filtro: {st.session_state.filtro_local}")
         
         if tips_automaticas:
@@ -1091,6 +1097,7 @@ else:
             # Ordena por confiança
             df_tips = df_tips.sort_values(by="CONFIANÇA", ascending=False)
             
+            st.markdown("### 🎲 Tabela: Oportunidades de Confiança")
             st.dataframe(
                 df_tips, 
                 use_container_width=True, 
@@ -1103,73 +1110,132 @@ else:
             st.info("Nenhuma oportunidade de alta confiança (>75%) encontrada com os filtros atuais.")
 
         st.divider()
-        st.header("🤝 Confiança H2H")
-        st.caption("Jogadores que bateram a linha no último confronto direto.")
+        st.header("⚔️ Análise H2H e Forma Recente (Jogos de Hoje)")
         
-        h2h_tips = []
-
-        for _, row_l in df_linhas.iterrows():
-            nome_j = str(row_l.get('jogador', '')).strip()
-            equipe_j_abrev = str(row_l.get('equipe', '')).strip()
-            equipe_j_full = ABREV_PARA_FULL.get(equipe_j_abrev, equipe_j_abrev)
+        # 1. Identificar times jogando hoje
+        schedule = get_nba_schedule()
+        today_str = datetime.now().strftime('%d/%m/%Y')
+        games_today = schedule.get(today_str, [])
+        
+        teams_today = {} # Map team -> opponent
+        for g in games_today:
+            teams_today[g['home']] = g['away']
+            teams_today[g['away']] = g['home']
             
-            opp_j_full = str(row_l.get('detalhe', '')).strip()
-            if not opp_j_full:
-                continue
-
-            df_player_all = df_completo[df_completo['Nome_Full'].str.contains(nome_j, case=False, na=False)].copy()
-            if df_player_all.empty:
-                continue
-            
-            for col in ['Pontos', 'Rebotes', 'Assistencias']:
-                df_player_all[col] = pd.to_numeric(df_player_all[col], errors='coerce').fillna(0)
-            df_player_all['P+R'] = df_player_all['Pontos'] + df_player_all['Rebotes']
-
-            df_h2h = df_player_all[df_player_all['Opp_Full'] == opp_j_full].sort_values('Data_Hora_Jogo', ascending=False)
-            if df_h2h.empty:
-                continue
-            
-            last_h2h_game = df_h2h.head(1)
-
-            df_j_metric = df_player_all.copy()
-            if st.session_state.filtro_local == "Casa": df_j_metric = df_j_metric[df_j_metric['Casa'] == 1]
-            elif st.session_state.filtro_local == "Fora": df_j_metric = df_j_metric[df_j_metric['Casa'] == 0]
-            df_j_metric = df_j_metric.sort_values(by='Data_Hora_Jogo', ascending=False)
-            
-            if periodo_selecionado == "Últimos 5": df_j_metric = df_j_metric.head(5)
-            elif periodo_selecionado == "Últimos 10": df_j_metric = df_j_metric.head(10)
-
-            total_media_games = len(df_j_metric)
-            if total_media_games == 0:
-                continue
-
-            markets = {'pts': 'Pontos', 'reb': 'Rebotes', 'pr': 'P+R', 'ast': 'Assistencias'}
-            
-            for key, col_name in markets.items():
-                try:
-                    line = float(str(row_l.get(key, 'nan')).replace(',', '.'))
-                    if pd.isna(line) or line == 0: continue
-                except (ValueError, TypeError): continue
-
-                last_h2h_stat = last_h2h_game[col_name].iloc[0]
-                
-                if last_h2h_stat > line:
-                    h2h_overs = len(df_h2h[df_h2h[col_name] > line])
-                    h2h_total = len(df_h2h)
-                    h2h_pct = (h2h_overs / h2h_total) * 100 if h2h_total > 0 else 0
-                    h2h_text = f"{h2h_overs} de {h2h_total} ({h2h_pct:.0f}%)"
-
-                    media_overs = len(df_j_metric[df_j_metric[col_name] > line])
-                    media_pct = (media_overs / total_media_games) * 100
-                    media_text = f"{media_overs} de {total_media_games} ({media_pct:.0f}%)"
-
-                    h2h_tips.append({
-                        "EQUIPE": equipe_j_full, "JOGADOR": nome_j, "MERCADO": col_name,
-                        "LINHA": line, "% H2H": h2h_text, "% MEDIA": media_text
-                    })
-
-        if h2h_tips:
-            df_h2h_tips = pd.DataFrame(h2h_tips)
-            st.dataframe(df_h2h_tips, use_container_width=True, hide_index=True)
+        if not teams_today:
+            st.warning(f"Não foram encontrados jogos agendados para hoje ({today_str}) na API/Base de dados.")
         else:
-            st.info("Nenhuma dica H2H encontrada com base nos critérios.")
+            h2h_analysis = []
+            
+            # 2. Iterar sobre linhas e filtrar
+            for _, row_l in df_linhas.iterrows():
+                nome_j = str(row_l.get('jogador', '')).strip()
+                equipe_j_abrev = str(row_l.get('equipe', '')).strip()
+                equipe_j_full = ABREV_PARA_FULL.get(equipe_j_abrev, equipe_j_abrev)
+                
+                # Verifica se o time joga hoje
+                if equipe_j_full not in teams_today:
+                    continue
+                    
+                opponent_full = teams_today[equipe_j_full]
+                
+                # Carrega stats do jogador
+                df_player_all = df_completo[df_completo['Nome_Full'].str.contains(nome_j, case=False, na=False)].copy()
+                if df_player_all.empty:
+                    continue
+                
+                # Posição do Jogador
+                pos_j = df_player_all['Posicao_Jogador'].iloc[0] if 'Posicao_Jogador' in df_player_all.columns and not df_player_all.empty else "N/A"
+
+                # Dados do Oponente para Defensive Gap
+                df_vs_opp = df_completo[df_completo['Opp_Full'] == opponent_full].copy()
+                for c in ['Pontos', 'Rebotes', 'Assistencias', '3PTS_Feitos']:
+                     df_vs_opp[c] = pd.to_numeric(df_vs_opp[c], errors='coerce').fillna(0)
+                df_vs_opp['P+R'] = df_vs_opp['Pontos'] + df_vs_opp['Rebotes']
+                df_vs_opp_pos = df_vs_opp[df_vs_opp['Posicao_Jogador'] == pos_j]
+
+                # Prepara colunas numéricas
+                cols_to_numeric = ['Pontos', 'Rebotes', 'Assistencias', '3PTS_Feitos']
+                for c in cols_to_numeric:
+                    if c in df_player_all.columns:
+                        df_player_all[c] = pd.to_numeric(df_player_all[c], errors='coerce').fillna(0)
+                df_player_all['P+R'] = df_player_all['Pontos'] + df_player_all['Rebotes']
+                
+                # Filtra H2H
+                df_h2h = df_player_all[df_player_all['Opp_Full'] == opponent_full].sort_values('Data_Hora_Jogo', ascending=False)
+                
+                # Filtra Forma Recente (respeitando filtro local/fora da sidebar)
+                df_recent = df_player_all.sort_values('Data_Hora_Jogo', ascending=False)
+                if st.session_state.filtro_local == "Casa":
+                    df_recent = df_recent[df_recent['Casa'] == 1]
+                elif st.session_state.filtro_local == "Fora":
+                    df_recent = df_recent[df_recent['Casa'] == 0]
+                
+                if periodo_selecionado == "Últimos 5":
+                    df_recent = df_recent.head(5)
+                elif periodo_selecionado == "Últimos 10":
+                    df_recent = df_recent.head(10)
+                
+                # Mercados a analisar
+                markets = {
+                    'pts': 'Pontos', 'reb': 'Rebotes', 'ast': 'Assistencias', 
+                    'pr': 'P+R', '3p': '3PTS_Feitos'
+                }
+                
+                for m_key, m_col in markets.items():
+                    try:
+                        line_val = float(str(row_l.get(m_key, 0)).replace(',', '.'))
+                        if line_val <= 0: continue
+                    except: continue
+                    
+                    # Calc Hits
+                    h2h_hits = len(df_h2h[df_h2h[m_col] > line_val])
+                    h2h_total = len(df_h2h)
+                    h2h_pct = (h2h_hits / h2h_total * 100) if h2h_total > 0 else 0
+                    
+                    recent_hits = len(df_recent[df_recent[m_col] > line_val])
+                    recent_total = len(df_recent)
+                    recent_pct = (recent_hits / recent_total * 100) if recent_total > 0 else 0
+                    
+                    # Calc Defensive Gap
+                    avg_allowed = 0
+                    if not df_vs_opp_pos.empty and m_col in df_vs_opp_pos.columns:
+                        avg_allowed = df_vs_opp_pos[m_col].mean()
+                    
+                    gap_pct = (avg_allowed / line_val * 100) if line_val > 0 else 0
+
+                    h2h_analysis.append({
+                        "JOGADOR": nome_j,
+                        "POS": pos_j,
+                        "EQUIPE": equipe_j_full,
+                        "OPONENTE": opponent_full,
+                        "MERCADO": m_key.upper(),
+                        "LINHA": line_val,
+                        "H2H (Hits)": h2h_pct,
+                        f"FORMA ({periodo_selecionado})": recent_pct,
+                        "DEF GAP": gap_pct
+                    })
+            
+            if h2h_analysis:
+                st.markdown("### 📊 Tabela: Detalhes dos Confrontos")
+                st.dataframe(
+                    pd.DataFrame(h2h_analysis), 
+                    use_container_width=True, 
+                    hide_index=True,
+                    column_config={
+                        "H2H (Hits)": st.column_config.NumberColumn(format="%d%%"),
+                        f"FORMA ({periodo_selecionado})": st.column_config.NumberColumn(format="%d%%"),
+                        "DEF GAP": st.column_config.NumberColumn(format="%d%%", help="Média cedida pelo oponente para esta posição vs Linha")
+                    }
+                )
+                st.markdown("""
+                <small>
+                **Legenda:**<br>
+                • **H2H (Hits):** % de jogos contra este adversário onde bateu a linha.<br>
+                • **FORMA:** % de jogos recentes (filtro) onde bateu a linha.<br>
+                • **DEF GAP:** Potencial baseado na defesa do adversário. (Média cedida para a posição / Linha) * 100. <br>
+                &nbsp;&nbsp;*Ex: 110% significa que o adversário cede 10% a mais que a linha do jogador (Bom Potencial).*
+                </small>
+                """, unsafe_allow_html=True)
+            else:
+                st.info("Nenhum dado de linha encontrado para os jogadores dos times que jogam hoje.")
