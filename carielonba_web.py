@@ -73,6 +73,9 @@ VAR_COR_SIDEBAR_TEXTO = BRANCO_CLARO       # Onde usar: Textos gerais na sidebar
 VAR_COR_SIDEBAR_TITULOS = BRANCO_CLARO # Onde usar: Títulos dentro da sidebar (Contraste no Azul)
 VAR_COR_SIDEBAR_INPUT_BG = BRANCO_CLARO # Onde usar: Fundo dos campos de seleção/texto
 VAR_COR_SIDEBAR_INPUT_TXT = PRETO_CLARO   # Onde usar: Texto dentro dos campos
+VAR_COR_SIDEBAR_RADIO_TEXTO = BRANCO_CLARO # Onde usar: Texto das opções de radio na sidebar
+VAR_COR_BOTAO_RESET_FUNDO = VERMELHO_NBA_MEDIO # Onde usar: Fundo do botão de reset (Visão Geral)
+VAR_COR_BOTAO_RESET_TEXTO = BRANCO_CLARO # Onde usar: Texto do botão de reset
 
 # Elementos de Interface (Cards, Métricas, Tabelas)
 VAR_COR_CARD_FUNDO = BRANCO_MEDIO          # Onde usar: Fundo de containers e tabelas
@@ -127,6 +130,14 @@ st.markdown(f"""
             background-color: {VAR_COR_BOTAO_HOVER} !important;
             color: {VAR_COR_BOTAO_TEXTO} !important;
         }}
+        /* Botão Primário (Visão Geral - Vermelho) */
+        div[data-testid="stButton"] > button[kind="primary"] {{
+            background-color: {VAR_COR_BOTAO_RESET_FUNDO} !important;
+            color: {VAR_COR_BOTAO_RESET_TEXTO} !important;
+        }}
+        div[data-testid="stButton"] > button[kind="primary"]:hover {{
+            background-color: {VERMELHO_NBA_ESCURO} !important;
+        }}
 
         /* Sidebar */
         [data-testid="stSidebar"] {{
@@ -134,7 +145,6 @@ st.markdown(f"""
         }}
         /* Textos na Sidebar */
         [data-testid="stSidebar"] .stMarkdown p,
-        [data-testid="stSidebar"] .stRadio > label p,
         [data-testid="stSidebar"] .stSelectbox > label,
         [data-testid="stSidebar"] .stCaptionContainer,
         [data-testid="stSidebar"] span {{
@@ -143,6 +153,13 @@ st.markdown(f"""
         [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {{
             color: {VAR_COR_SIDEBAR_TITULOS} !important;
         }}
+        
+        /* Opções de Radio Button na Sidebar (Próximos Jogos, Geral, Casa, Fora) */
+        [data-testid="stSidebar"] .stRadio label p,
+        [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label div {{
+            color: {VAR_COR_SIDEBAR_RADIO_TEXTO} !important;
+        }}
+
         /* Inputs na Sidebar */
         [data-testid="stSidebar"] div[data-baseweb="select"] > div {{
             background-color: {VAR_COR_SIDEBAR_INPUT_BG};
@@ -566,7 +583,7 @@ else:
     for c in ['Pontos', 'Rebotes', 'Assistencias', '3PTS_Feitos', 'Minutos']:
         df_jogador[c] = pd.to_numeric(df_jogador[c], errors='coerce').fillna(0)
 
-    df_jogador['PR'] = df_jogador['Pontos'] + df_jogador['Rebotes']
+    df_jogador['P+R'] = df_jogador['Pontos'] + df_jogador['Rebotes']
     df_jogador = df_jogador[(df_jogador['Pontos'] + df_jogador['Rebotes'] + df_jogador['Assistencias']) > 0].copy()
 
     # Aplica filtros de contexto (local e período)
@@ -593,13 +610,44 @@ else:
             if opp_selecionado != "Selecione...":
                 df_h2h = df_jogador[df_jogador['Opp_Full'] == opp_selecionado]
                 if not df_h2h.empty:
-                    mean_h2h = df_h2h[['Pontos', 'Rebotes', 'Assistencias', 'PR']].mean()
+                    mean_h2h = df_h2h[['Pontos', 'Rebotes', 'Assistencias', 'P+R']].mean()
                     st.markdown(f"Jogos: **{len(df_h2h)}**")
                     st.markdown(f"PTS: **{mean_h2h['Pontos']:.1f}** | REB: **{mean_h2h['Rebotes']:.1f}** | AST: **{mean_h2h['Assistencias']:.1f}**")
                 else:
                     st.warning("Sem histórico")
             else:
                 st.info("Selecione adversário")
+
+        # Defensive Gaps
+        st.markdown("**Defensive Gaps**")
+        if opp_selecionado != "Selecione...":
+            df_opp_sofre = df_completo[df_completo['Opp_Full'] == opp_selecionado].copy()
+            if not df_opp_sofre.empty and 'Posicao_Jogador' in df_opp_sofre.columns:
+                stats_pos = df_opp_sofre.groupby('Posicao_Jogador')[['Pontos', 'Rebotes', '3PTS_Feitos']].mean().sort_values(by='Pontos', ascending=False).head(3)
+                stats_pos = stats_pos.reset_index().rename(columns={"Posicao_Jogador": "POS", "Pontos": "PTS", "Rebotes": "REB", "3PTS_Feitos": "3PTS"})
+                st.dataframe(stats_pos, hide_index=True, use_container_width=True)
+        else:
+            st.info("Selecione adversário")
+
+        # 2. Linha da Bet (Reposicionado)
+        with st.container(border=True):
+            st.markdown("**🎯 Linha da Bet**")
+            bet_cols = st.columns(5) # Lado a lado
+            bet_inputs = {}
+            bet_labels = ["PTS", "REB", "AST", "P+R", "3P"] # Reorganizado para fluir melhor
+            bet_keys = ["pts", "reb", "ast", "pr", "3p"]
+
+            linha_jogador_df = df_linhas[df_linhas['jogador'].astype(str).str.contains(jogador_selecionado, case=False, na=False, regex=False)]
+            
+            for i, (label, key) in enumerate(zip(bet_labels, bet_keys)):
+                default_val = ""
+                if not linha_jogador_df.empty and key in linha_jogador_df.columns:
+                    val = linha_jogador_df.iloc[0][key]
+                    if pd.notna(val):
+                        default_val = str(val)
+                
+                col = bet_cols[i]
+                bet_inputs[key] = col.text_input(label, value=default_val, key=f"bet_{key}")
 
         # Projeção vs Linha
         with st.container(border=True):
@@ -640,37 +688,6 @@ else:
             else:
                 st.write("Sem dados.")
 
-        # Defensive Gaps
-        st.markdown("**Defensive Gaps**")
-        if opp_selecionado != "Selecione...":
-            df_opp_sofre = df_completo[df_completo['Opp_Full'] == opp_selecionado].copy()
-            if not df_opp_sofre.empty and 'Posicao_Jogador' in df_opp_sofre.columns:
-                stats_pos = df_opp_sofre.groupby('Posicao_Jogador')[['Pontos', 'Rebotes', '3PTS_Feitos']].mean().sort_values(by='Pontos', ascending=False).head(3)
-                stats_pos = stats_pos.reset_index().rename(columns={"Posicao_Jogador": "POS", "Pontos": "PTS", "Rebotes": "REB", "3PTS_Feitos": "3PTS"})
-                st.dataframe(stats_pos, hide_index=True, use_container_width=True)
-        else:
-            st.info("Selecione adversário")
-
-        # 2. Linha da Bet (Reposicionado)
-        with st.container(border=True):
-            st.markdown("**🎯 Linha da Bet**")
-            bet_cols = st.columns(5) # Lado a lado
-            bet_inputs = {}
-            bet_labels = ["PTS", "REB", "AST", "P+R", "3P"] # Reorganizado para fluir melhor
-            bet_keys = ["pts", "reb", "ast", "pr", "3p"]
-
-            linha_jogador_df = df_linhas[df_linhas['jogador'].astype(str).str.contains(jogador_selecionado, case=False, na=False, regex=False)]
-            
-            for i, (label, key) in enumerate(zip(bet_labels, bet_keys)):
-                default_val = ""
-                if not linha_jogador_df.empty and key in linha_jogador_df.columns:
-                    val = linha_jogador_df.iloc[0][key]
-                    if pd.notna(val):
-                        default_val = str(val)
-                
-                col = bet_cols[i]
-                bet_inputs[key] = col.text_input(label, value=default_val, key=f"bet_{key}")
-
     # --- Coluna Principal: Abas e Tabelas ---
     with col_main:
         # --- Perfil do Jogador (Movido para cá) ---
@@ -691,6 +708,14 @@ else:
                 return [f'background-color: {VAR_COR_DESTAQUE_LINHA_BG}; color: {VAR_COR_DESTAQUE_LINHA_TXT}; font-weight: bold'] * len(row)
             return [''] * len(row)
 
+        # --- Botão Visão Geral (Reset) ---
+        c_spacer, c_reset = st.columns([5, 1])
+        with c_reset:
+            if st.button("Visão Geral", type="primary", use_container_width=True, help="Reseta filtros de equipe, jogador e oponente"):
+                for k in ['combo_eq', 'combo_jog', 'combo_opp', 'radio_local', 'combo_qtd']:
+                    if k in st.session_state: del st.session_state[k]
+                st.rerun()
+
         # --- Abas de Conteúdo ---
         tab_analise, tab_linhas, tab_mediana, tab_tips = st.tabs([
             "  📊 ANÁLISE INDIVIDUAL  ",
@@ -709,7 +734,7 @@ else:
                 df_display['LOCAL'] = df_display['Casa'].apply(lambda x: "Casa" if x == 1 else "Fora")
                 
                 colunas_tabela = {
-                    "Pontos": "PTS", "Rebotes": "REB", "PR": "P+R",
+                    "Pontos": "PTS", "Rebotes": "REB", "P+R": "P+R",
                     "Assistencias": "AST", "3PTS_Feitos": "3PTS",
                     "Minutos": "MIN", "Data_Limpa": "DATA", "LOCAL": "LOCAL", "Opp_Full": "OPONENTE"
                 }
@@ -723,7 +748,7 @@ else:
                 st.divider()
                 st.subheader("Insights Rápidos")
                 
-                cols_nba = {"MIN": "Minutos", "PTS": "Pontos", "REB": "Rebotes", "P+R": "PR", "AST": "Assistencias", "3P": "3PTS_Feitos"}
+                cols_nba = {"MIN": "Minutos", "PTS": "Pontos", "REB": "Rebotes", "P+R": "P+R", "AST": "Assistencias", "3P": "3PTS_Feitos"}
                 stats = df_filtrado[list(cols_nba.values())].agg(['median', 'mean', 'min', 'max'])
                 stats.columns = list(cols_nba.keys())
                 stats.index = ["Mediana", "Média", "Mínimo", "Máximo"]
@@ -780,14 +805,14 @@ else:
                     # Garante que as colunas de estatísticas sejam numéricas e sem NaN
                     for col in ['Pontos', 'Rebotes']:
                         df_j_metric[col] = pd.to_numeric(df_j_metric[col], errors='coerce').fillna(0)
-                    df_j_metric['PR'] = df_j_metric['Pontos'] + df_j_metric['Rebotes']
+                    df_j_metric['P+R'] = df_j_metric['Pontos'] + df_j_metric['Rebotes']
                     
                     # Mins
-                    mins = df_j_metric[['Pontos', 'Rebotes', 'PR']].min()
+                    mins = df_j_metric[['Pontos', 'Rebotes', 'P+R']].min()
 
                     p_pts = (len(df_j_metric[df_j_metric['Pontos'] > v_pts]) / total * 100) if not pd.isna(v_pts) else 0
                     p_rbt = (len(df_j_metric[df_j_metric['Rebotes'] > v_rbt]) / total * 100) if not pd.isna(v_rbt) else 0
-                    p_pr = (len(df_j_metric[df_j_metric['PR'] > v_pr]) / total * 100) if v_pr > 0 and not pd.isna(v_pr) else 0
+                    p_pr = (len(df_j_metric[df_j_metric['P+R'] > v_pr]) / total * 100) if v_pr > 0 and not pd.isna(v_pr) else 0
 
                     # Confidence (Floor vs Line)
                     def calc_conf(min_val, line_val):
@@ -797,23 +822,29 @@ else:
 
                     conf_pts = calc_conf(mins['Pontos'], v_pts)
                     conf_reb = calc_conf(mins['Rebotes'], v_rbt)
-                    conf_pr = calc_conf(mins['PR'], v_pr)
+                    conf_pr = calc_conf(mins['P+R'], v_pr)
 
                     # Lógica para Tips Automáticas (> 75% Confiança)
                     if conf_pts > 75:
+                        over_count = len(df_j_metric[df_j_metric['Pontos'] > v_pts])
                         tips_automaticas.append({
                             "JOGADOR": nome_j, "TIME": equipe_j_full, "MERCADO": "Pontos", 
-                            "LINHA": v_pts, "PISO": int(mins['Pontos']), "CONFIANÇA": conf_pts
+                            "LINHA": v_pts, "PISO": int(mins['Pontos']), "CONFIANÇA": conf_pts,
+                            "MÉDIA": f"{over_count} de {total}"
                         })
                     if conf_reb > 75:
+                        over_count = len(df_j_metric[df_j_metric['Rebotes'] > v_rbt])
                         tips_automaticas.append({
                             "JOGADOR": nome_j, "TIME": equipe_j_full, "MERCADO": "Rebotes", 
-                            "LINHA": v_rbt, "PISO": int(mins['Rebotes']), "CONFIANÇA": conf_reb
+                            "LINHA": v_rbt, "PISO": int(mins['Rebotes']), "CONFIANÇA": conf_reb,
+                            "MÉDIA": f"{over_count} de {total}"
                         })
                     if conf_pr > 75:
+                        over_count = len(df_j_metric[df_j_metric['P+R'] > v_pr])
                         tips_automaticas.append({
                             "JOGADOR": nome_j, "TIME": equipe_j_full, "MERCADO": "P+R", 
-                            "LINHA": v_pr, "PISO": int(mins['PR']), "CONFIANÇA": conf_pr
+                            "LINHA": v_pr, "PISO": int(mins['P+R']), "CONFIANÇA": conf_pr,
+                            "MÉDIA": f"{over_count} de {total}"
                         })
 
                     # Garante que os valores que serão convertidos para int não sejam NaN
@@ -821,7 +852,7 @@ else:
                         "EQUIPE": equipe_j_full, "JOGADOR": nome_j, 
                         "L_PTS": int(v_pts) if not pd.isna(v_pts) else 0, "MIN PTS": int(mins['Pontos']), "CONF PTS": conf_pts, "PTS %": f"{p_pts:.0f}%",
                         "L_REB": int(v_rbt) if not pd.isna(v_rbt) else 0, "MIN REB": int(mins['Rebotes']), "CONF REB": conf_reb, "REB %": f"{p_rbt:.0f}%",
-                        "L_PR": int(v_pr) if not pd.isna(v_pr) else 0, "MIN PR": int(mins['PR']), "CONF PR": conf_pr, "PR %": f"{p_pr:.0f}%",
+                        "L_PR": int(v_pr) if not pd.isna(v_pr) else 0, "MIN PR": int(mins['P+R']), "CONF PR": conf_pr, "PR %": f"{p_pr:.0f}%",
                         "DETALHE": detalhe
                     })
 
@@ -882,14 +913,14 @@ else:
                 if df_p['Minutos'].mean() < 25: continue
 
                 team_name = df_p['Nome_Time'].iloc[0] if 'Nome_Time' in df_p.columns else "-"
-                df_p['PR'] = df_p['Pontos'] + df_p['Rebotes']
-                medians = df_p[['Pontos', 'Rebotes', 'Assistencias', 'PR']].median()
+                df_p['P+R'] = df_p['Pontos'] + df_p['Rebotes']
+                medians = df_p[['Pontos', 'Rebotes', 'Assistencias', 'P+R']].median()
                 
                 # Período Recente
                 if periodo_selecionado == "Últimos 5": df_p_period = df_p.head(5)
                 elif periodo_selecionado == "Últimos 10": df_p_period = df_p.head(10)
                 else: df_p_period = df_p
-                
+
                 if df_p_period.empty: continue
                 
                 total_games = len(df_p_period)
@@ -898,19 +929,19 @@ else:
                 pct_pts = (len(df_p_period[df_p_period['Pontos'] > medians['Pontos']]) / total_games) * 100
                 pct_reb = (len(df_p_period[df_p_period['Rebotes'] > medians['Rebotes']]) / total_games) * 100
                 pct_ast = (len(df_p_period[df_p_period['Assistencias'] > medians['Assistencias']]) / total_games) * 100
-                pct_pr = (len(df_p_period[df_p_period['PR'] > medians['PR']]) / total_games) * 100
+                pct_pr = (len(df_p_period[df_p_period['P+R'] > medians['P+R']]) / total_games) * 100
                 
                 if pct_pts >= 50 or pct_reb >= 50 or pct_ast >= 50 or pct_pr >= 50:
                     data_mediana.append({
                         "TIME": team_name, "JOGADOR": player,
                         "MED PTS": int(medians['Pontos']), "% PTS": f"{pct_pts:.0f}%",
                         "MED REB": int(medians['Rebotes']), "% REB": f"{pct_reb:.0f}%",
-                        "MED P+R": int(medians['PR']), "% P+R": f"{pct_pr:.0f}%",
+                        "MED P+R": int(medians['P+R']), "% P+R": f"{pct_pr:.0f}%",
                         "MED AST": int(medians['Assistencias']), "% AST": f"{pct_ast:.0f}%"
                     })
                 
                 # --- Lógica 2: Consistência (Mínimo vs Mediana) ---
-                mins = df_p_period[['Pontos', 'Rebotes', 'Assistencias', 'PR']].min()
+                mins = df_p_period[['Pontos', 'Rebotes', 'Assistencias', 'P+R']].min()
                 
                 def calc_conf(min_val, med_val):
                     if med_val == 0: return 0.0
@@ -919,34 +950,34 @@ else:
                 conf_pts = calc_conf(mins['Pontos'], medians['Pontos'])
                 conf_reb = calc_conf(mins['Rebotes'], medians['Rebotes'])
                 conf_ast = calc_conf(mins['Assistencias'], medians['Assistencias'])
-                conf_pr = calc_conf(mins['PR'], medians['PR'])
+                conf_pr = calc_conf(mins['P+R'], medians['P+R'])
 
                 data_consistencia.append({
                     "TIME": team_name, "JOGADOR": player,
                     "MED PTS": int(medians['Pontos']), "MIN PTS": int(mins['Pontos']), "CONF PTS": conf_pts,
                     "MED REB": int(medians['Rebotes']), "MIN REB": int(mins['Rebotes']), "CONF REB": conf_reb,
-                    "MED P+R": int(medians['PR']), "MIN P+R": int(mins['PR']), "CONF P+R": conf_pr,
+                    "MED P+R": int(medians['P+R']), "MIN P+R": int(mins['P+R']), "CONF P+R": conf_pr,
                     "MED AST": int(medians['Assistencias']), "MIN AST": int(mins['Assistencias']), "CONF AST": conf_ast
                 })
 
                 # --- Lógica 3: Consistência (Teto vs Mediana - Foco em Under) ---
-                maxs = df_p_period[['Pontos', 'Rebotes', 'Assistencias', 'PR']].max()
+                maxs = df_p_period[['Pontos', 'Rebotes', 'Assistencias', 'P+R']].max()
 
                 def calc_conf_teto(med_val, max_val):
                     if max_val == 0: return 0.0
                     # Quanto mais próximo de 100%, mais o Maximo está colado na Mediana (Bom para Under)
                     return (med_val / max_val) * 100
-                
+
                 conf_teto_pts = calc_conf_teto(medians['Pontos'], maxs['Pontos'])
                 conf_teto_reb = calc_conf_teto(medians['Rebotes'], maxs['Rebotes'])
                 conf_teto_ast = calc_conf_teto(medians['Assistencias'], maxs['Assistencias'])
-                conf_teto_pr = calc_conf_teto(medians['PR'], maxs['PR'])
+                conf_teto_pr = calc_conf_teto(medians['P+R'], maxs['P+R'])
 
                 data_teto.append({
                     "TIME": team_name, "JOGADOR": player,
                     "MED PTS": int(medians['Pontos']), "MAX PTS": int(maxs['Pontos']), "CONF PTS": conf_teto_pts,
                     "MED REB": int(medians['Rebotes']), "MAX REB": int(maxs['Rebotes']), "CONF REB": conf_teto_reb,
-                    "MED P+R": int(medians['PR']), "MAX P+R": int(maxs['PR']), "CONF P+R": conf_teto_pr,
+                    "MED P+R": int(medians['P+R']), "MAX P+R": int(maxs['P+R']), "CONF P+R": conf_teto_pr,
                     "MED AST": int(medians['Assistencias']), "MAX AST": int(maxs['Assistencias']), "CONF AST": conf_teto_ast
                 })
                     
@@ -1071,9 +1102,74 @@ else:
         else:
             st.info("Nenhuma oportunidade de alta confiança (>75%) encontrada com os filtros atuais.")
 
-        with st.expander("ℹ️ Entenda as Tips"):
-            st.markdown("""
-            *   **Seleção:** Apenas jogadores com **Confiança > 75%**.
-            *   **Confiança:** Calculada dividindo o **Piso** (pior jogo recente) pela **Linha** da aposta.
-            *   **Interpretação:** Buscamos jogadores cujo "pior dia" ainda é seguro ou muito próximo da linha pedida, minimizando o risco de red por variância normal.
-            """)
+        st.divider()
+        st.header("🤝 Confiança H2H")
+        st.caption("Jogadores que bateram a linha no último confronto direto.")
+        
+        h2h_tips = []
+
+        for _, row_l in df_linhas.iterrows():
+            nome_j = str(row_l.get('jogador', '')).strip()
+            equipe_j_abrev = str(row_l.get('equipe', '')).strip()
+            equipe_j_full = ABREV_PARA_FULL.get(equipe_j_abrev, equipe_j_abrev)
+            
+            opp_j_full = str(row_l.get('detalhe', '')).strip()
+            if not opp_j_full:
+                continue
+
+            df_player_all = df_completo[df_completo['Nome_Full'].str.contains(nome_j, case=False, na=False)].copy()
+            if df_player_all.empty:
+                continue
+            
+            for col in ['Pontos', 'Rebotes', 'Assistencias']:
+                df_player_all[col] = pd.to_numeric(df_player_all[col], errors='coerce').fillna(0)
+            df_player_all['P+R'] = df_player_all['Pontos'] + df_player_all['Rebotes']
+
+            df_h2h = df_player_all[df_player_all['Opp_Full'] == opp_j_full].sort_values('Data_Hora_Jogo', ascending=False)
+            if df_h2h.empty:
+                continue
+            
+            last_h2h_game = df_h2h.head(1)
+
+            df_j_metric = df_player_all.copy()
+            if st.session_state.filtro_local == "Casa": df_j_metric = df_j_metric[df_j_metric['Casa'] == 1]
+            elif st.session_state.filtro_local == "Fora": df_j_metric = df_j_metric[df_j_metric['Casa'] == 0]
+            df_j_metric = df_j_metric.sort_values(by='Data_Hora_Jogo', ascending=False)
+            
+            if periodo_selecionado == "Últimos 5": df_j_metric = df_j_metric.head(5)
+            elif periodo_selecionado == "Últimos 10": df_j_metric = df_j_metric.head(10)
+
+            total_media_games = len(df_j_metric)
+            if total_media_games == 0:
+                continue
+
+            markets = {'pts': 'Pontos', 'reb': 'Rebotes', 'pr': 'P+R', 'ast': 'Assistencias'}
+            
+            for key, col_name in markets.items():
+                try:
+                    line = float(str(row_l.get(key, 'nan')).replace(',', '.'))
+                    if pd.isna(line) or line == 0: continue
+                except (ValueError, TypeError): continue
+
+                last_h2h_stat = last_h2h_game[col_name].iloc[0]
+                
+                if last_h2h_stat > line:
+                    h2h_overs = len(df_h2h[df_h2h[col_name] > line])
+                    h2h_total = len(df_h2h)
+                    h2h_pct = (h2h_overs / h2h_total) * 100 if h2h_total > 0 else 0
+                    h2h_text = f"{h2h_overs} de {h2h_total} ({h2h_pct:.0f}%)"
+
+                    media_overs = len(df_j_metric[df_j_metric[col_name] > line])
+                    media_pct = (media_overs / total_media_games) * 100
+                    media_text = f"{media_overs} de {total_media_games} ({media_pct:.0f}%)"
+
+                    h2h_tips.append({
+                        "EQUIPE": equipe_j_full, "JOGADOR": nome_j, "MERCADO": col_name,
+                        "LINHA": line, "% H2H": h2h_text, "% MEDIA": media_text
+                    })
+
+        if h2h_tips:
+            df_h2h_tips = pd.DataFrame(h2h_tips)
+            st.dataframe(df_h2h_tips, use_container_width=True, hide_index=True)
+        else:
+            st.info("Nenhuma dica H2H encontrada com base nos critérios.")
