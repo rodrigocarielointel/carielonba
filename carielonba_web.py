@@ -315,8 +315,14 @@ if df_completo is None:
 def get_nba_schedule():
     base_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(base_dir, "jogos.csv")
+    
+    # Correção para Linux/Github: Procura o arquivo ignorando maiúsculas/minúsculas
     if not os.path.exists(file_path):
-        return {}
+        for f in os.listdir(base_dir):
+            if f.lower() == "jogos.csv":
+                file_path = os.path.join(base_dir, f)
+                break
+        if not os.path.exists(file_path): return {}
     
     try:
         # Tenta ler com separador ;
@@ -339,7 +345,9 @@ def get_nba_schedule():
         df = df.dropna(subset=['data_partida'])
         
         # Filtra hoje e próximos dias
-        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        # Correção de Fuso Horário: Servidores Cloud usam UTC. 
+        # Subtraímos 4h para garantir que jogos da noite (BRT/ET) apareçam mesmo se já virou o dia em UTC.
+        today = (datetime.now() - timedelta(hours=4)).replace(hour=0, minute=0, second=0, microsecond=0)
         end_date = today + timedelta(days=7) 
         
         mask = (df['data_partida'] >= today) & (df['data_partida'] < end_date)
