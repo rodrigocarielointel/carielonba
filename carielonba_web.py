@@ -757,14 +757,7 @@ else:
             except:
                 is_home_game = -1
 
-            if st.session_state.filtro_local == "Casa" and is_home_game != 1:
-                continue
-            if st.session_state.filtro_local == "Fora" and is_home_game != 0:
-                continue
-
-            # Filtro de equipe
-            if equipe_selecionada != "Selecione a Equipe..." and equipe_j_full != equipe_selecionada:
-                continue
+            # (Filtros de Sidebar removidos para Insights e Tips serem independentes)
 
             try:
                 v_pts = float(str(row_l.get('pts', 0)).replace(',', '.'))
@@ -779,13 +772,7 @@ else:
             df_j_metric = df_completo[df_completo['Nome_Full'].str.contains(nome_j, case=False, na=False)].copy()
             
             if not df_j_metric.empty:
-                # Filtra pelo jogador selecionado no sidebar, se houver
-                if tem_jogador and jogador_selecionado not in df_j_metric['Nome_Full'].unique():
-                    continue
-
-                # Aplica filtros de contexto
-                if st.session_state.filtro_local == "Casa": df_j_metric = df_j_metric[df_j_metric['Casa'] == 1]
-                elif st.session_state.filtro_local == "Fora": df_j_metric = df_j_metric[df_j_metric['Casa'] == 0]
+                # (Filtros de Jogador e Local removidos para Insights e Tips serem independentes - Usa Geral)
                 
                 df_j_metric = df_j_metric.sort_values(by='Data_Hora_Jogo', ascending=False)
                 if periodo_selecionado == "Últimos 5": df_j_metric = df_j_metric.head(5)
